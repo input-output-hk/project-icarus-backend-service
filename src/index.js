@@ -18,7 +18,7 @@ createDB(config.get('db'))
     const server = restify.createServer({
       certificate: fs.readFileSync(`${TLS_DIR}/server.crt`),
       key: fs.readFileSync(`${TLS_DIR}/server.key`),
-      ca: fs.readFileSync(`${TLS_DIR}/ca.crt`),
+      ca: fs.readFileSync(`${TLS_DIR}/ca.pem`),
       log: logger,
     });
 
