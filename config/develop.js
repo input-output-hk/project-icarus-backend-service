@@ -1,17 +1,13 @@
-const Logger = require('bunyan');
-const defer = require('config/defer').deferConfig;
 const { raw } = require('config/raw');
-
-// eslint-disable-next-line new-cap
-const logger = new Logger.createLogger({
-  name: defer(() => this.appName),
-  level: 'debug',
-});
+const { consoleLogger } = require('../src/logger');
 
 module.exports = {
   server: {
     corsEnabledFor: ['*'],
-    logger: raw(logger),
+    logger: raw(consoleLogger),
+    https: {
+      tlsDir: './tls-files',
+    },
   },
   db: {
     user: 'postgres',

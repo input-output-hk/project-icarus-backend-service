@@ -1,12 +1,14 @@
 {
-  "name": "icaraus-poc-backend-service",
+  "name": "icarus-poc-backend-service",
   "version": "0.0.1",
   "description": "Icarus backend service that will allow wallet users to access blockchain data",
   "main": "./src/index.js",
   "scripts": {
     "dev": "export NODE_ENV=develop && ./node_modules/.bin/nodemon ./src/index.js | ./node_modules/.bin/bunyan",
     "eslint": "eslint ./src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-docker": "./scripts/docker/build-docker.sh",
+    "launch-staging": "./scripts/docker/launch-staging.sh"
   },
   "repository": {
     "type": "git",
