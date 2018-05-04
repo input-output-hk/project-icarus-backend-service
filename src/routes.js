@@ -1,3 +1,5 @@
+const { version } = require('../package.json');
+
 /**
  * Temp function to be used while setting up the project
  */
@@ -11,6 +13,12 @@ const sayHi = (db, logger) => async (req, res, next) => {
   }
 };
 
+const healthCheck = (req, res, next) => {
+  res.send({ version });
+  return next();
+};
+
 module.exports = {
   sayHi,
+  healthCheck,
 };
