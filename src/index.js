@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = require('path');
+const pathLib = require('path');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
 const restifyBunyanLogger = require('restify-bunyan-logger');
@@ -15,7 +15,7 @@ const { logger } = serverConfig;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 function addHttps(defaultRestifyConfig) {
-  const TLS_DIR = path.join(serverConfig.https.tlsDir, process.env.NODE_ENV);
+  const TLS_DIR = pathLib.join(serverConfig.https.tlsDir, process.env.NODE_ENV);
   const httpsConfig = {
     certificate: fs.readFileSync(`${TLS_DIR}/server.crt`),
     key: fs.readFileSync(`${TLS_DIR}/server.key`),
@@ -23,8 +23,6 @@ function addHttps(defaultRestifyConfig) {
   };
   return Object.assign({}, defaultRestifyConfig, httpsConfig);
 }
-
-const withPrefix = route => `/api${route}`;
 
 createDB(config.get('db'))
   .then(db => {
@@ -44,10 +42,10 @@ createDB(config.get('db'))
     server.use(restify.plugins.bodyParser());
     server.on('after', restifyBunyanLogger());
 
-    // Route config. We could use a better router here but we will only support
-    // three routes (atm) so it's not worthy to use another package to do so.
-    server.get(withPrefix('/healthcheck'), routes.healthCheck);
-    server.get('*', routes.sayHi(db, logger));
+    // Load routes defined in the server
+    Object.values(routes).forEach(({ method, path, handler }) => {
+      server[method](path, handler(db, logger));
+    });
 
     configCleanup(db, logger);
 
