@@ -26,6 +26,8 @@ function addHttps(defaultRestifyConfig) {
 
 createDB(config.get('db'))
   .then(db => {
+    logger.info('Connected to db');
+    
     const defaultRestifyConfig = {
       log: logger,
     };
