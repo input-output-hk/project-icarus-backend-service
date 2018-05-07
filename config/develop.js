@@ -8,6 +8,7 @@ module.exports = {
     https: {
       tlsDir: './tls-files',
     },
+    importerSendTxEndpoint: 'https://localhost:8200/api/txs/signed',
   },
   db: {
     user: 'postgres',
