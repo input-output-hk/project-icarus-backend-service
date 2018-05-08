@@ -5,6 +5,7 @@
   "main": "./src/index.js",
   "scripts": {
     "dev": "export NODE_ENV=develop && ./node_modules/.bin/nodemon ./src/index.js | ./node_modules/.bin/bunyan",
+    "staging": "export NODE_ENV=staging && ./node_modules/.bin/nodemon ./src/index.js | ./node_modules/.bin/bunyan",
     "eslint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-docker": "./scripts/docker/build-docker.sh",

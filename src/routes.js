@@ -24,8 +24,8 @@ const utxoForAddresses = (db, logger) => async (req, res, next) => {
   try {
     logger.debug('[utxoForAddresses] request start');
     validateAddressesReq(req.body);
-    const result = await dbApi.utxoForAddresses(db, req.body);
-    res.send(result);
+    const result = await dbApi.utxoForAddresses(db, req.body.addresses);
+    res.send(result.rows);
     logger.debug('[utxoForAddresses] request end');
     return next();
   } catch (err) {
