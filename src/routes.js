@@ -75,9 +75,9 @@ const signedTransaction = (db, { logger, importerSendTxEndpoint }) => async (
   try {
     logger.debug('[signedTransaction] request start');
     validateSignedTransactionReq(req.body);
-    const { response } = await axios.post(importerSendTxEndpoint, req.body);
-    if (response.Right) {
-      res.send(response.Right);
+    const response = await axios.post(importerSendTxEndpoint, req.body);
+    if (response.status === 200) {
+      res.send(response.data);
       logger.debug('[signedTransaction] request end');
       return next();
     }
@@ -85,7 +85,7 @@ const signedTransaction = (db, { logger, importerSendTxEndpoint }) => async (
       '[signedTransaction] Error while doing request to backend',
       response,
     );
-    return next(new Error('Error trying to send transaction'));
+    return next(new Error('Error trying to send transaction', response.data));
   } catch (err) {
     logger.error('[signedTransaction] Error', err);
     return next(new Error('Error trying to send transaction'));
