@@ -48,6 +48,25 @@ const utxoForAddresses = (db, { logger }) => async (req, res, next) => {
   }
 };
 
+/**
+ * Endpoint to handle getting UTXOs amount sum for given addresses
+ * @param {*} db Database
+ * @param {*} Server Server Config object
+ */
+const utxoSumForAddresses = (db, { logger }) => async (req, res, next) => {
+  try {
+    logger.debug('[utxoSumForAddresses] request start');
+    validateAddressesReq(req.body);
+    const result = await dbApi.utxoSumForAddresses(db, req.body.addresses);
+    res.send(result.rows[0]);
+    logger.debug('[utxoSumForAddresses] request end');
+    return next();
+  } catch (err) {
+    logger.error('[utxoSumForAddresses] Error', err);
+    return next(err);
+  }
+};
+
 const transactionsHistory = (db, { logger }) => async (req, res, next) => {
   try {
     logger.debug('[transactionsHistory] request start');
@@ -114,6 +133,11 @@ module.exports = {
     method: 'post',
     path: withPrefix('/txs/utxoForAddresses'),
     handler: utxoForAddresses,
+  },
+  utxoSumForAddresses: {
+    method: 'post',
+    path: withPrefix('/txs/utxoSumForAddresses'),
+    handler: utxoSumForAddresses,
   },
   transactionsHistory: {
     method: 'post',
