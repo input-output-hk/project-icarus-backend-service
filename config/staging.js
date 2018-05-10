@@ -5,6 +5,7 @@ module.exports = {
   server: {
     corsEnabledFor: ['*'],
     logger: raw(consoleLogger),
+    importerSendTxEndpoint: 'http://ec2-18-206-30-1.compute-1.amazonaws.com:8200/api/txs/signed',
   },
   db: {
     user: 'fake',
@@ -15,6 +16,6 @@ module.exports = {
     min: 4,
     max: 20,
     idleTimeoutMillis: 1000,
-    connectionTimeoutMillis: 1000,
+    connectionTimeoutMillis: 5000,
   },
 };

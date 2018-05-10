@@ -27,7 +27,7 @@ function addHttps(defaultRestifyConfig) {
 createDB(config.get('db'))
   .then(db => {
     logger.info('Connected to db');
-    
+
     const defaultRestifyConfig = {
       log: logger,
     };
@@ -46,7 +46,7 @@ createDB(config.get('db'))
 
     // Load routes defined in the server
     Object.values(routes).forEach(({ method, path, handler }) => {
-      server[method](path, handler(db, logger));
+      server[method](path, handler(db, serverConfig));
     });
 
     configCleanup(db, logger);
