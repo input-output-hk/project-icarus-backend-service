@@ -5,7 +5,15 @@
  * @param {Array[Address]} addresses
  */
 async function utxoForAddresses(db, addresses) {
-  return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [addresses]);
+  return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [
+    addresses,
+  ]);
+}
+
+async function utxoSumForAddresses(db, addresses) {
+  return db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
+    addresses,
+  ]);
 }
 
 /**
@@ -21,5 +29,6 @@ async function transactionsHistoryForAddresses(db, addresses) {
 
 module.exports = {
   utxoForAddresses,
+  utxoSumForAddresses,
   transactionsHistoryForAddresses,
 };
