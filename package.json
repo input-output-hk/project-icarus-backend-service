@@ -25,6 +25,7 @@
     "axios": "0.18.0",
     "bunyan": "1.8.12",
     "config": "1.30.0",
+    "moment": "2.22.1",
     "pg": "7.4.1",
     "restify": "7.1.1",
     "restify-bunyan-logger": "2.0.7",
