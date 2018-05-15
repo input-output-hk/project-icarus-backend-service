@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { version } = require('../package.json');
 const dbApi = require('./db-api');
+const errs = require('restify-errors');
 
 const withPrefix = route => `/api${route}`;
 
@@ -96,14 +97,21 @@ const signedTransaction = (db, { logger, importerSendTxEndpoint }) => async (
     validateSignedTransactionReq(req.body);
     const response = await axios.post(importerSendTxEndpoint, req.body);
     if (response.status === 200) {
-      res.send(response.data);
-      logger.debug('[signedTransaction] request end');
-      return next();
+      const parsedBody = response.data;
+      if (parsedBody.Right) {
+        // "Right" means 200 ok (success) -> also handle if Right: false (boolean response)
+        res.send(parsedBody.Right);
+        logger.debug('[signedTransaction] request end');
+        return next();
+      } else if (parsedBody.Left) {
+        // "Left" means error case -> return error with contents (exception on nextUpdate)
+        logger.debug('[signedTransaction] Error trying to send transaction');
+        return next(new errs.InvalidContentError('Error trying to send transaction', parsedBody.Left.contents));
+      }
+      logger.debug('[signedTransaction] Unknown response from backend');
+      return next(new Error('Unknown response from backend.'));
     }
-    logger.error(
-      '[signedTransaction] Error while doing request to backend',
-      response,
-    );
+    logger.error('[signedTransaction] Error while doing request to backend', response);
     return next(new Error('Error trying to send transaction', response.data));
   } catch (err) {
     logger.error('[signedTransaction] Error', err);
