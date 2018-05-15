@@ -21,9 +21,20 @@ function validateAddressesReq({ addresses } = {}) {
  * This method validates dateFrom sent as request body is valid datetime
  * @param {String} dateFrom DateTime as String
  */
-function validateDatetimeReq({ dateFrom }) {
+function validateDatetimeReq({ dateFrom } = {}) {
   if (!dateFrom || !moment(dateFrom).isValid()) {
     throw new Error('DateFrom should be a valid datetime');
+  }
+  return true;
+}
+
+/**
+ * Validates order parameter sent in query string
+ * @param {Object} Order 
+ */
+function validateOrderReq({order} = {}) {
+  if(!order || (order !== 'ASC' && order !== 'DESC')) {
+    throw new Error('Order should be "ASC" or "DESC"'); 
   }
   return true;
 }
@@ -89,10 +100,12 @@ const transactionsHistory = (db, { logger }) => async (req, res, next) => {
     logger.debug('[transactionsHistory] request start');
     validateAddressesReq(req.body);
     validateDatetimeReq(req.body);
+    validateOrderReq(req.query);
     const result = await dbApi.transactionsHistoryForAddresses(
       db,
       req.body.addresses,
       moment(req.body.dateFrom).toDate(),
+      req.query.order,
     );
     res.send(result.rows);
     logger.debug('[transactionsHistory] request end');

@@ -42,6 +42,7 @@ createDB(config.get('db'))
     server.pre(cors.preflight);
     server.use(cors.actual);
     server.use(restify.plugins.bodyParser());
+    server.use(restify.plugins.queryParser());
     server.on('after', restifyBunyanLogger());
 
     // Load routes defined in the server
