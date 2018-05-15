@@ -1,8 +1,21 @@
 /**
+ * Returns the list of addresses that were used at least once (as input or output)
+ * @param {Db Object} db
+ * @param {Array<Address>} addresses
+ */
+async function filterUsedAddresses(db, addresses) {
+  return db.query({
+    text: 'SELECT DISTINCT address FROM "tx_addresses" WHERE address = ANY($1)',
+    values: [addresses],
+    rowMode: 'array',
+  });
+}
+
+/**
  * Queries UTXO table looking for unspents for given addresses
  *
  * @param {Db Object} db
- * @param {Array[Address]} addresses
+ * @param {Array<Address>} addresses
  */
 async function utxoForAddresses(db, addresses) {
   return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [
@@ -21,9 +34,15 @@ async function utxoSumForAddresses(db, addresses) {
  * for the given addresses
  *
  * @param {Db Object} db
- * @param {Array[Address]} addresses
+ * @param {Array<Address>} addresses
  */
-async function transactionsHistoryForAddresses(db, addresses, dateFrom, sort, limit = 20) {
+async function transactionsHistoryForAddresses(
+  db,
+  addresses,
+  dateFrom,
+  sort,
+  limit = 20,
+) {
   // We are using sort as string as it cannot be sent as parameter
   const timeSort = sort === 'ASC' || sort === 'DESC' ? sort : 'ASC';
   return db.query(
@@ -47,6 +66,7 @@ async function transactionsHistoryForAddresses(db, addresses, dateFrom, sort, li
 }
 
 module.exports = {
+  filterUsedAddresses,
   utxoForAddresses,
   utxoSumForAddresses,
   transactionsHistoryForAddresses,
