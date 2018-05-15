@@ -34,7 +34,7 @@ create database icaruspocbackendservice;
 3.  Install dependencies, `npm install`
 4.  Start the app, `npm run dev`.
 
-In order to run the staging environment, you need to:
+In order to run targeting staging DB from local environment, you need to:
 
 1. Create a file with the necessary environment variables set. E.g.:
   ```
