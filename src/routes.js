@@ -1,4 +1,5 @@
 const axios = require('axios');
+const moment = require('moment');
 const { version } = require('../package.json');
 const dbApi = require('./db-api');
 const errs = require('restify-errors');
@@ -14,6 +15,28 @@ function validateAddressesReq({ addresses } = {}) {
     throw new Error('Addresses request length should be (0, 20]');
   }
   // TODO: Add address validation
+  return true;
+}
+
+/**
+ * This method validates dateFrom sent as request body is valid datetime
+ * @param {String} dateFrom DateTime as String
+ */
+function validateDatetimeReq({ dateFrom } = {}) {
+  if (!dateFrom || !moment(dateFrom).isValid()) {
+    throw new Error('DateFrom should be a valid datetime');
+  }
+  return true;
+}
+
+/**
+ * Validates order parameter sent in query string
+ * @param {Object} Order 
+ */
+function validateOrderReq({order} = {}) {
+  if(!order || (order !== 'ASC' && order !== 'DESC')) {
+    throw new Error('Order should be "ASC" or "DESC"'); 
+  }
   return true;
 }
 
@@ -50,9 +73,9 @@ const utxoForAddresses = (db, { logger }) => async (req, res, next) => {
 };
 
 /**
- * Endpoint to handle getting UTXOs amount sum for given addresses
+ * Endpoint to handle getting Tx History for given addresses and Date Filter
  * @param {*} db Database
- * @param {*} Server Server Config object
+ * @param {*} Server Server Config Object
  */
 const utxoSumForAddresses = (db, { logger }) => async (req, res, next) => {
   try {
@@ -68,12 +91,24 @@ const utxoSumForAddresses = (db, { logger }) => async (req, res, next) => {
   }
 };
 
+/**
+ *
+ * @param {*} db Database
+ * @param {*} Server Config Object
+ */
 const transactionsHistory = (db, { logger }) => async (req, res, next) => {
   try {
     logger.debug('[transactionsHistory] request start');
     validateAddressesReq(req.body);
-    const result = await dbApi.transactionsHistoryForAddresses(db, req.body);
-    res.send(result);
+    validateDatetimeReq(req.body);
+    validateOrderReq(req.query);
+    const result = await dbApi.transactionsHistoryForAddresses(
+      db,
+      req.body.addresses,
+      moment(req.body.dateFrom).toDate(),
+      req.query.order,
+    );
+    res.send(result.rows);
     logger.debug('[transactionsHistory] request end');
     return next();
   } catch (err) {
