@@ -31,11 +31,11 @@ function validateDatetimeReq({ dateFrom } = {}) {
 
 /**
  * Validates order parameter sent in query string
- * @param {Object} Order 
+ * @param {Object} Order
  */
-function validateOrderReq({order} = {}) {
-  if(!order || (order !== 'ASC' && order !== 'DESC')) {
-    throw new Error('Order should be "ASC" or "DESC"'); 
+function validateOrderReq({ order } = {}) {
+  if (!order || (order !== 'ASC' && order !== 'DESC')) {
+    throw new Error('Order should be "ASC" or "DESC"');
   }
   return true;
 }
@@ -68,6 +68,26 @@ const utxoForAddresses = (db, { logger }) => async (req, res, next) => {
     return next();
   } catch (err) {
     logger.error('[utxoForAddresses] Error', err);
+    return next(err);
+  }
+};
+
+/**
+ * This endpoint filters the given addresses returning the ones that were
+ * used at least once
+ * @param {*} db Database
+ * @param {*} Server Server Config Object
+ */
+const filterUsedAddresses = (db, { logger }) => async (req, res, next) => {
+  try {
+    logger.debug('[filterUsedAddresses] request start');
+    validateAddressesReq(req.body);
+    const result = await dbApi.filterUsedAddresses(db, req.body.addresses);
+    res.send(result.rows.reduce((acc, row) => acc.concat(row), []));
+    logger.debug('[filterUsedAddresses] request end');
+    return next();
+  } catch (err) {
+    logger.error('[filterUsedAddresses] Error', err);
     return next(err);
   }
 };
@@ -171,6 +191,11 @@ module.exports = {
     method: 'get',
     path: withPrefix('/healthcheck'),
     handler: healthCheck,
+  },
+  filterUsedAddresses: {
+    method: 'post',
+    path: withPrefix('/addresses/filterUsed'),
+    handler: filterUsedAddresses,
   },
   utxoForAddresses: {
     method: 'post',
