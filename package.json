@@ -1,6 +1,6 @@
 {
   "name": "icarus-poc-backend-service",
-  "version": "0.0.1",
+  "version": "0.3.0",
   "description": "Icarus backend service that will allow wallet users to access blockchain data",
   "main": "./src/index.js",
   "scripts": {
