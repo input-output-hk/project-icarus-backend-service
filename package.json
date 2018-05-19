@@ -31,6 +31,8 @@
   },
   "homepage": "https://github.com/input-output-hk/icaraus-poc-backend-service#readme",
   "dependencies": {
+    "@iopipe/iopipe": "1.7.0",
+    "aws-xray-sdk": "1.2.0",
     "axios": "0.18.0",
     "bunyan": "1.8.12",
     "claudia-api-builder": "4.0.2",
