@@ -5,15 +5,18 @@
  * @param {Array[Address]} addresses
  */
 async function utxoForAddresses(db, addresses) {
-  return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [
-    addresses,
-  ]);
+  return db.query(
+    'SELECT * FROM "utxos" WHERE receiver = ANY(VALUES (\'a\'))',
+    [addresses],
+  );
 }
 
 async function utxoSumForAddresses(db, addresses) {
-  return db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
+  const params = addresses.map((v, i) => `($${i + 1})`);
+  return db.query(
+    `SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY(VALUES ${params.join(',')})`,
     addresses,
-  ]);
+  );
 }
 
 /**
@@ -23,7 +26,13 @@ async function utxoSumForAddresses(db, addresses) {
  * @param {Db Object} db
  * @param {Array[Address]} addresses
  */
-async function transactionsHistoryForAddresses(db, addresses, dateFrom, sort, limit = 20) {
+async function transactionsHistoryForAddresses(
+  db,
+  addresses,
+  dateFrom,
+  sort,
+  limit = 20,
+) {
   // We are using sort as string as it cannot be sent as parameter
   const timeSort = sort === 'ASC' || sort === 'DESC' ? sort : 'ASC';
   return db.query(
