@@ -18,15 +18,19 @@ async function filterUsedAddresses(db, addresses) {
  * @param {Array<Address>} addresses
  */
 async function utxoForAddresses(db, addresses) {
-  return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [
-    addresses,
-  ]);
+  return db.query({
+    name: 'utxoForAddress',
+    text: 'SELECT * FROM "utxos" WHERE receiver = ANY($1)',
+    values: [addresses],
+  });
 }
 
 async function utxoSumForAddresses(db, addresses) {
-  return db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
-    addresses,
-  ]);
+  return db.query({
+    name: 'utxoSumForAddresses',
+    text: 'SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)',
+    values: [addresses],
+  });
 }
 
 /**
@@ -45,24 +49,25 @@ async function transactionsHistoryForAddresses(
 ) {
   // We are using sort as string as it cannot be sent as parameter
   const timeSort = sort === 'ASC' || sort === 'DESC' ? sort : 'ASC';
-  return db.query(
-    `
-    SELECT *
-    FROM "txs"
-    LEFT JOIN (SELECT * from "bestblock" LIMIT 1) f ON true
-    WHERE 
-      hash = ANY (
-        SELECT tx_hash 
-        FROM "tx_addresses"
-        where address = ANY ($1)
-      )
-      AND 
-        time >= $2
-    ORDER BY time ${timeSort}
-    LIMIT ${limit}
-   `,
-    [addresses, dateFrom],
-  );
+  return db.query({
+    name: 'transactionsHistoryForAddresses',
+    text: `
+      SELECT *
+      FROM "txs"
+      LEFT JOIN (SELECT * from "bestblock" LIMIT 1) f ON true
+      WHERE 
+        hash = ANY (
+          SELECT tx_hash 
+          FROM "tx_addresses"
+          where address = ANY ($1)
+        )
+        AND 
+          time >= $2
+      ORDER BY time ${timeSort}
+      LIMIT ${limit}
+    `,
+    values: [addresses, dateFrom],
+  });
 }
 
 module.exports = {
