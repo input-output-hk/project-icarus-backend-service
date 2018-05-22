@@ -16,5 +16,6 @@ docker run -d -e DB_USER=$DB_USER \
   -e DB_PASSWORD=$DB_PASSWORD \
   -e DB_PORT=$DB_PORT \
   -e NODE_ENV=staging \
+  -e UV_THREADPOOL_SIZE=40 \
   --name $NAME \
   -p 8080:8080 icarus/$NAME:$TAG

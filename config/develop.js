@@ -4,7 +4,7 @@ const { consoleLogger } = require('../src/logger');
 module.exports = {
   server: {
     corsEnabledFor: ['*'],
-    logger: raw(consoleLogger),
+    logger: raw(consoleLogger('debug')),
     https: {
       tlsDir: './tls-files',
     },

@@ -2,9 +2,9 @@ const Logger = require('bunyan');
 const defer = require('config/defer').deferConfig;
 
 // eslint-disable-next-line new-cap
-const consoleLogger = new Logger.createLogger({
+const consoleLogger = (level = 'debug') => new Logger.createLogger({
   name: defer(() => this.appName),
-  level: 'debug',
+  level,
 });
 
 module.exports = {
