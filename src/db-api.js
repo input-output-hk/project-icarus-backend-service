@@ -57,7 +57,7 @@ async function transactionsHistoryForAddresses(
         where address = ANY ($1)
       )
       AND 
-        time >= $2
+        time > $2
     ORDER BY time ${timeSort}
     LIMIT ${limit}
    `,
