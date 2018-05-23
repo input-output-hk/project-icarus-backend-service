@@ -31,7 +31,11 @@ async function utxoSumForAddresses(db, addresses) {
 
 /**
  * Queries DB looking for transactions including (either inputs or outputs)
- * for the given addresses
+ * for the given addresses.
+ * 
+ * @note: 'time' variable in the query, must be greater or equal because
+ * the transactions could have the same date time (for example when they are part of the same block)
+ * 
  *
  * @param {Db Object} db
  * @param {Array<Address>} addresses
@@ -57,7 +61,7 @@ async function transactionsHistoryForAddresses(
         where address = ANY ($1)
       )
       AND 
-        time > $2
+        time >= $2
     ORDER BY time ${timeSort}
     LIMIT ${limit}
    `,
