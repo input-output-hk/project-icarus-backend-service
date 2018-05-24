@@ -1,5 +1,15 @@
 // @flow
 
+import type { Pool } from 'pg';
+import type { Logger } from 'bunyan';
+import type {
+  LoggerObject,
+  Request,
+  Response,
+  TxHistoryRequest,
+  SignedTxRequest,
+} from 'types'; // eslint-disable-line
+
 const axios = require('axios');
 const moment = require('moment');
 const { version } = require('../package.json');
@@ -7,16 +17,6 @@ const dbApi = require('./db-api');
 const errs = require('restify-errors');
 
 const withPrefix = route => `/api${route}`;
-
-import type { Pool } from 'pg';
-import type { Logger } from 'bunyan';
-import type { 
-  LoggerObject,
-  Request,
-  Response,
-  TxHistoryRequest,
-  SignedTxRequest
-} from 'types';
 
 /**
  * This method validates addresses request body
@@ -42,17 +42,6 @@ function validateDatetimeReq({ dateFrom } = {}) {
 }
 
 /**
- * Validates order parameter sent in query string
- * @param {Object} Order
- */
-function validateOrderReq({ order } = {}) {
-  if (!order || (order !== 'ASC' && order !== 'DESC')) {
-    throw new Error('Order should be "ASC" or "DESC"');
-  }
-  return true;
-}
-
-/**
  * This method validates signedTransaction endpoint body in order to check
  * if signedTransaction is received ok and is valid
  * @param {Object} Signed Transaction Payload
@@ -71,10 +60,10 @@ function validateSignedTransactionReq({ signedTx } = {}) {
  * @param {*} Server Server Config object
  */
 const utxoForAddresses = (db: Pool, { logger }: LoggerObject) => async (
-    req: Request,
-    res: Response,
-    next: Function
-  ) => {
+  req: Request,
+  res: Response,
+  next: Function,
+) => {
   try {
     logger.debug('[utxoForAddresses] request start');
     validateAddressesReq(req.body);
@@ -97,7 +86,7 @@ const utxoForAddresses = (db: Pool, { logger }: LoggerObject) => async (
 const filterUsedAddresses = (db: Pool, { logger }: LoggerObject) => async (
   req: Request,
   res: Response,
-  next: Function
+  next: Function,
 ) => {
   try {
     logger.debug('[filterUsedAddresses] request start');
@@ -120,7 +109,7 @@ const filterUsedAddresses = (db: Pool, { logger }: LoggerObject) => async (
 const utxoSumForAddresses = (db: Pool, { logger }: LoggerObject) => async (
   req: Request,
   res: Response,
-  next: Function
+  next: Function,
 ) => {
   try {
     logger.debug('[utxoSumForAddresses] request start');
@@ -143,18 +132,17 @@ const utxoSumForAddresses = (db: Pool, { logger }: LoggerObject) => async (
 const transactionsHistory = (db: Pool, { logger }: LoggerObject) => async (
   req: TxHistoryRequest,
   res: Response,
-  next: Function
+  next: Function,
 ) => {
   try {
     logger.debug('[transactionsHistory] request start');
     validateAddressesReq(req.body);
     validateDatetimeReq(req.body);
-    validateOrderReq(req.query);
     const result = await dbApi.transactionsHistoryForAddresses(
       db,
       req.body.addresses,
       moment(req.body.dateFrom).toDate(),
-      req.query.order
+      req.body.txHash,
     );
     res.send(result.rows);
     logger.debug('[transactionsHistory] request end');
@@ -172,12 +160,11 @@ const transactionsHistory = (db: Pool, { logger }: LoggerObject) => async (
  */
 const signedTransaction = (
   db: Pool,
-  { logger, importerSendTxEndpoint }: {logger: Logger, importerSendTxEndpoint: string}
-) => async (
-  req: SignedTxRequest,
-  res: Response,
-  next: Function
-) => {
+  {
+    logger,
+    importerSendTxEndpoint,
+  }: { logger: Logger, importerSendTxEndpoint: string },
+) => async (req: SignedTxRequest, res: Response, next: Function) => {
   try {
     logger.debug('[signedTransaction] request start');
     validateSignedTransactionReq(req.body);
@@ -192,13 +179,21 @@ const signedTransaction = (
       } else if (parsedBody.Left) {
         // "Left" means error case -> return error with contents (exception on nextUpdate)
         logger.debug('[signedTransaction] Error trying to send transaction');
-        return next(new errs.InvalidContentError('Error trying to send transaction', parsedBody.Left.contents));
+        return next(
+          new errs.InvalidContentError(
+            'Error trying to send transaction',
+            parsedBody.Left.contents,
+          ),
+        );
       }
       logger.debug('[signedTransaction] Unknown response from backend');
       return next(new Error('Unknown response from backend.'));
     }
-    logger.error('[signedTransaction] Error while doing request to backend', response);
-    return next(new Error('Error trying to send transaction ' + response.data));
+    logger.error(
+      '[signedTransaction] Error while doing request to backend',
+      response,
+    );
+    return next(new Error(`Error trying to send transaction ${response.data}`));
   } catch (err) {
     logger.error('[signedTransaction] Error', err);
     return next(new Error('Error trying to send transaction'));
@@ -212,11 +207,7 @@ const signedTransaction = (
  * @param {*} res
  * @param {*} next
  */
-const healthCheck = () => (
-  req: {},
-  res: Response,
-  next: Function
-) => {
+const healthCheck = () => (req: {}, res: Response, next: Function) => {
   res.send({ version });
   return next();
 };
@@ -225,31 +216,31 @@ module.exports = {
   healthCheck: {
     method: 'get',
     path: withPrefix('/healthcheck'),
-    handler: healthCheck
+    handler: healthCheck,
   },
   filterUsedAddresses: {
     method: 'post',
     path: withPrefix('/addresses/filterUsed'),
-    handler: filterUsedAddresses
+    handler: filterUsedAddresses,
   },
   utxoForAddresses: {
     method: 'post',
     path: withPrefix('/txs/utxoForAddresses'),
-    handler: utxoForAddresses
+    handler: utxoForAddresses,
   },
   utxoSumForAddresses: {
     method: 'post',
     path: withPrefix('/txs/utxoSumForAddresses'),
-    handler: utxoSumForAddresses
+    handler: utxoSumForAddresses,
   },
   transactionsHistory: {
     method: 'post',
     path: withPrefix('/txs/history'),
-    handler: transactionsHistory
+    handler: transactionsHistory,
   },
   signedTransaction: {
     method: 'post',
     path: withPrefix('/txs/signed'),
-    handler: signedTransaction
-  }
+    handler: signedTransaction,
+  },
 };
