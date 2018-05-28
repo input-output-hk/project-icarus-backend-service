@@ -1,0 +1,17 @@
+FROM mhart/alpine-node:8.9.4
+
+RUN apk add --update bash bash-doc util-linux pciutils usbutils coreutils binutils findutils grep \ 
+    && npm install -g pm2 \
+    && pm2 install pm2-logrotate \ 
+    && pm2 set pm2-logrotate:max_size 500M \
+    && mkdir -p /usr/app
+
+WORKDIR /usr/app
+COPY ./ /usr/app
+
+RUN cd /usr/app \
+			 && npm install --production
+
+WORKDIR /usr/app
+
+CMD ["pm2", "start", "./src/index.js", "-i", "0", "--no-daemon"]

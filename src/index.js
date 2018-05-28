@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = require('path');
+const pathLib = require('path');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
 const restifyBunyanLogger = require('restify-bunyan-logger');
@@ -9,32 +9,50 @@ const createDB = require('./db');
 const configCleanup = require('./cleanup');
 
 const serverConfig = config.get('server');
-const logger = serverConfig.logger;
+const { logger } = serverConfig;
+
+// Don't check client certs
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+function addHttps(defaultRestifyConfig) {
+  const TLS_DIR = pathLib.join(serverConfig.https.tlsDir, process.env.NODE_ENV);
+  const httpsConfig = {
+    certificate: fs.readFileSync(`${TLS_DIR}/server.crt`),
+    key: fs.readFileSync(`${TLS_DIR}/server.key`),
+    ca: fs.readFileSync(`${TLS_DIR}/ca.pem`),
+  };
+  return Object.assign({}, defaultRestifyConfig, httpsConfig);
+}
 
 createDB(config.get('db'))
   .then(db => {
-    const TLS_DIR = path.join(serverConfig.tlsDir, process.env.NODE_ENV);
+    logger.info('Connected to db');
 
-    const server = restify.createServer({
-      certificate: fs.readFileSync(`${TLS_DIR}/server.crt`),
-      key: fs.readFileSync(`${TLS_DIR}/server.key`),
-      ca: fs.readFileSync(`${TLS_DIR}/ca.pem`),
+    const defaultRestifyConfig = {
       log: logger,
-    });
+    };
+
+    const restifyConfig = serverConfig.https
+      ? addHttps(defaultRestifyConfig)
+      : defaultRestifyConfig;
+
+    const server = restify.createServer(restifyConfig);
 
     const cors = corsMiddleware({ origins: serverConfig.corsEnabledFor });
     server.pre(cors.preflight);
     server.use(cors.actual);
     server.use(restify.plugins.bodyParser());
+    server.use(restify.plugins.queryParser());
     server.on('after', restifyBunyanLogger());
 
-    // Route config. We could use a better router here but we will only support
-    // three routes (atm) so it's not worthy to use another package to do so.
-    server.get('*', routes.sayHi(db, logger));
+    // Load routes defined in the server
+    Object.values(routes).forEach(({ method, path, handler }) => {
+      server[method](path, handler(db, serverConfig));
+    });
 
     configCleanup(db, logger);
 
-    server.listen(serverConfig.httpsPort, () => {
+    server.listen(serverConfig.port, () => {
       logger.info('%s listening at %s', server.name, server.url);
     });
   })

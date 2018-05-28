@@ -1,12 +1,15 @@
 {
-  "name": "icaraus-poc-backend-service",
-  "version": "0.0.1",
+  "name": "icarus-poc-backend-service",
+  "version": "0.3.0",
   "description": "Icarus backend service that will allow wallet users to access blockchain data",
   "main": "./src/index.js",
   "scripts": {
     "dev": "export NODE_ENV=develop && ./node_modules/.bin/nodemon ./src/index.js | ./node_modules/.bin/bunyan",
+    "staging": "export NODE_ENV=staging && ./node_modules/.bin/nodemon ./src/index.js | ./node_modules/.bin/bunyan",
     "eslint": "eslint ./src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-docker": "./scripts/docker/build-docker.sh",
+    "launch-staging": "./scripts/docker/launch-staging.sh"
   },
   "repository": {
     "type": "git",
@@ -19,8 +22,10 @@
   },
   "homepage": "https://github.com/input-output-hk/icaraus-poc-backend-service#readme",
   "dependencies": {
+    "axios": "0.18.0",
     "bunyan": "1.8.12",
     "config": "1.30.0",
+    "moment": "2.22.1",
     "pg": "7.4.1",
     "restify": "7.1.1",
     "restify-bunyan-logger": "2.0.7",
