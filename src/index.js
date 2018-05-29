@@ -48,9 +48,9 @@ createDB(config.get('db')).then(db => {
   server.on('after', restifyBunyanLogger());
 
   // Load routes defined in the server
-  // Object.values(routes).forEach(({method, path, handler}) => {
-  //   server[method](path, handler(db, serverConfig));
-  // });
+  Object.values(routes).forEach(({method, path, handler}: any) => {
+    server[method](path, handler(db, serverConfig));
+  });
 
   configCleanup(db, logger);
 

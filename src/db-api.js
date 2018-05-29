@@ -1,11 +1,13 @@
 // @flow
 
+import type { Pool } from 'pg';
+
 /**
  * Returns the list of addresses that were used at least once (as input or output)
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function filterUsedAddresses(db: {query: Function}, addresses: string) {
+async function filterUsedAddresses(db: Pool, addresses: string) {
   return db.query({
     text: 'SELECT DISTINCT address FROM "tx_addresses" WHERE address = ANY($1)',
     values: [addresses],
@@ -19,13 +21,13 @@ async function filterUsedAddresses(db: {query: Function}, addresses: string) {
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function utxoForAddresses(db: {query: Function}, addresses: string) {
+async function utxoForAddresses(db: Pool, addresses: string) {
   return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [
     addresses
   ]);
 }
 
-async function utxoSumForAddresses(db: {query: Function}, addresses: string) {
+async function utxoSumForAddresses(db: Pool, addresses: string) {
   return db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
     addresses
   ]);
@@ -39,7 +41,7 @@ async function utxoSumForAddresses(db: {query: Function}, addresses: string) {
  * @param {Array<Address>} addresses
  */
 async function transactionsHistoryForAddresses(
-  db: {query: Function},
+  db: Pool,
   addresses: string,
   dateFrom: Date,
   sort: string,

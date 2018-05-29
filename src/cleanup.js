@@ -1,6 +1,9 @@
 // @flow
 
-const exitHandler = (db: {ending: string, end: Function}, logger: {info: Function, error: Function}) => options => () => {
+import type { Pool } from 'pg';
+import type { Logger } from 'bunyan';
+
+const exitHandler = (db: Pool, logger: Logger) => options => () => {
   if (!db.ending) {
     logger.info('Cleaning the APP');
     db
@@ -12,7 +15,7 @@ const exitHandler = (db: {ending: string, end: Function}, logger: {info: Functio
   } else if (options.exit) process.exit();
 };
 
-function config(db: {ending: string, end: Function}, logger: {info: Function, error: Function}) {
+function config(db: Pool, logger: Logger) {
   const onExit = options => exitHandler(db, logger)(options);
 
   // do something when app is closing

@@ -8,6 +8,10 @@ const errs = require('restify-errors');
 
 const withPrefix = route => `/api${route}`;
 
+import type { Pool } from 'pg';
+import type { Logger } from 'bunyan';
+import type { LoggerObject } from 'types';
+
 /**
  * This method validates addresses request body
  * @param {Array[String]} addresses
@@ -60,7 +64,7 @@ function validateSignedTransactionReq({ signedTx } = {}) {
  * @param {*} db Database
  * @param {*} Server Server Config object
  */
-const utxoForAddresses = (db: {query: Function}, { logger }: {logger: Function}) => async (
+const utxoForAddresses = (db: Pool, { logger }: LoggerObject) => async (
     req: {body: {addresses: string}},
     res: {send: Function},
     next: Function
@@ -84,7 +88,7 @@ const utxoForAddresses = (db: {query: Function}, { logger }: {logger: Function})
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const filterUsedAddresses = (db: {query: Function}, { logger }: {logger: Function}) => async (
+const filterUsedAddresses = (db: Pool, { logger }: LoggerObject) => async (
   req: {body: {addresses: string}},
   res: {send: Function},
   next: Function
@@ -107,7 +111,7 @@ const filterUsedAddresses = (db: {query: Function}, { logger }: {logger: Functio
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const utxoSumForAddresses = (db: {query: Function}, { logger }: {logger: Function}) => async (
+const utxoSumForAddresses = (db: Pool, { logger }: LoggerObject) => async (
   req: {body: {addresses: string}},
   res: {send: Function},
   next: Function
@@ -130,7 +134,7 @@ const utxoSumForAddresses = (db: {query: Function}, { logger }: {logger: Functio
  * @param {*} db Database
  * @param {*} Server Config Object
  */
-const transactionsHistory = (db: {query: Function}, { logger }: {logger: Function}) => async (
+const transactionsHistory = (db: Pool, { logger }: LoggerObject) => async (
   req: {body: {addresses: string, dateFrom: Date}, query: {order: string}},
   res: {send: Function},
   next: Function
@@ -161,8 +165,8 @@ const transactionsHistory = (db: {query: Function}, { logger }: {logger: Functio
  * @param {*} Server Server Config object
  */
 const signedTransaction = (
-  db: {query: Function},
-  { logger, importerSendTxEndpoint }: {logger: Function, importerSendTxEndpoint: string}
+  db: Pool,
+  { logger, importerSendTxEndpoint }: {logger: Logger, importerSendTxEndpoint: string}
 ) => async (
   req: {body: {addresses: string, signedTx: string}},
   res: {send: Function},
