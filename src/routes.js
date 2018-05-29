@@ -60,10 +60,10 @@ function validateSignedTransactionReq({ signedTx } = {}) {
  * @param {*} db Database
  * @param {*} Server Server Config object
  */
-const utxoForAddresses = (db: {query: function}, { logger }: {logger: function}) => async (
+const utxoForAddresses = (db: {query: Function}, { logger }: {logger: Function}) => async (
     req: {body: {addresses: string}},
-    res: {send: function},
-    next: function
+    res: {send: Function},
+    next: Function
   ) => {
   try {
     logger.debug('[utxoForAddresses] request start');
@@ -84,10 +84,10 @@ const utxoForAddresses = (db: {query: function}, { logger }: {logger: function})
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const filterUsedAddresses = (db: {query: function}, { logger }: {logger: function}) => async (
+const filterUsedAddresses = (db: {query: Function}, { logger }: {logger: Function}) => async (
   req: {body: {addresses: string}},
-  res: {send: function},
-  next: function
+  res: {send: Function},
+  next: Function
 ) => {
   try {
     logger.debug('[filterUsedAddresses] request start');
@@ -107,10 +107,10 @@ const filterUsedAddresses = (db: {query: function}, { logger }: {logger: functio
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const utxoSumForAddresses = (db: {query: function}, { logger }: {logger: function}) => async (
+const utxoSumForAddresses = (db: {query: Function}, { logger }: {logger: Function}) => async (
   req: {body: {addresses: string}},
-  res: {send: function},
-  next: function
+  res: {send: Function},
+  next: Function
 ) => {
   try {
     logger.debug('[utxoSumForAddresses] request start');
@@ -130,10 +130,10 @@ const utxoSumForAddresses = (db: {query: function}, { logger }: {logger: functio
  * @param {*} db Database
  * @param {*} Server Config Object
  */
-const transactionsHistory = (db: {query: function}, { logger }: {logger: function}) => async (
+const transactionsHistory = (db: {query: Function}, { logger }: {logger: Function}) => async (
   req: {body: {addresses: string, dateFrom: Date}, query: {order: string}},
-  res: {send: function},
-  next: function
+  res: {send: Function},
+  next: Function
 ) => {
   try {
     logger.debug('[transactionsHistory] request start');
@@ -161,12 +161,12 @@ const transactionsHistory = (db: {query: function}, { logger }: {logger: functio
  * @param {*} Server Server Config object
  */
 const signedTransaction = (
-  db: {query: function},
-  { logger, importerSendTxEndpoint }: {logger: function, importerSendTxEndpoint: string}
+  db: {query: Function},
+  { logger, importerSendTxEndpoint }: {logger: Function, importerSendTxEndpoint: string}
 ) => async (
   req: {body: {addresses: string, signedTx: string}},
-  res: {send: function},
-  next: function
+  res: {send: Function},
+  next: Function
 ) => {
   try {
     logger.debug('[signedTransaction] request start');
@@ -204,8 +204,8 @@ const signedTransaction = (
  */
 const healthCheck = () => (
   req: {},
-  res: {send: function},
-  next: function
+  res: {send: Function},
+  next: Function
 ) => {
   res.send({ version });
   return next();

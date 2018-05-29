@@ -5,7 +5,7 @@
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function filterUsedAddresses(db: {query: function}, addresses: string) {
+async function filterUsedAddresses(db: {query: Function}, addresses: string) {
   return db.query({
     text: 'SELECT DISTINCT address FROM "tx_addresses" WHERE address = ANY($1)',
     values: [addresses],
@@ -19,13 +19,13 @@ async function filterUsedAddresses(db: {query: function}, addresses: string) {
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function utxoForAddresses(db: {query: function}, addresses: string) {
+async function utxoForAddresses(db: {query: Function}, addresses: string) {
   return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [
     addresses
   ]);
 }
 
-async function utxoSumForAddresses(db: {query: function}, addresses: string) {
+async function utxoSumForAddresses(db: {query: Function}, addresses: string) {
   return db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
     addresses
   ]);
@@ -39,7 +39,7 @@ async function utxoSumForAddresses(db: {query: function}, addresses: string) {
  * @param {Array<Address>} addresses
  */
 async function transactionsHistoryForAddresses(
-  db: {query: function},
+  db: {query: Function},
   addresses: string,
   dateFrom: Date,
   sort: string,
