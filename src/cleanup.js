@@ -1,17 +1,18 @@
-const exitHandler = (db, logger) => options => () => {
+// @flow
+
+const exitHandler = (db: {ending: string, end: function}, logger: {info: function, error: function}) => options => () => {
   if (!db.ending) {
     logger.info('Cleaning the APP');
     db
       .end()
       .then(() => {
-        logger.info('DB Pool released!');
-        if (options.exit) process.exit();
-      })
-      .catch(err => logger.error(err));
+      logger.info('DB Pool released!');
+      if (options.exit) process.exit();
+    }).catch(err => logger.error(err));
   } else if (options.exit) process.exit();
 };
 
-function config(db, logger) {
+function config(db: {ending: string, end: function}, logger: {info: function, error: function}) {
   const onExit = options => exitHandler(db, logger)(options);
 
   // do something when app is closing

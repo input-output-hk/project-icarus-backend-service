@@ -1,13 +1,15 @@
+// @flow
+
 /**
  * Returns the list of addresses that were used at least once (as input or output)
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function filterUsedAddresses(db, addresses) {
+async function filterUsedAddresses(db: {query: function}, addresses: string) {
   return db.query({
     text: 'SELECT DISTINCT address FROM "tx_addresses" WHERE address = ANY($1)',
     values: [addresses],
-    rowMode: 'array',
+    rowMode: 'array'
   });
 }
 
@@ -17,15 +19,15 @@ async function filterUsedAddresses(db, addresses) {
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function utxoForAddresses(db, addresses) {
+async function utxoForAddresses(db: {query: function}, addresses: string) {
   return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [
-    addresses,
+    addresses
   ]);
 }
 
-async function utxoSumForAddresses(db, addresses) {
+async function utxoSumForAddresses(db: {query: function}, addresses: string) {
   return db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
-    addresses,
+    addresses
   ]);
 }
 
@@ -37,16 +39,15 @@ async function utxoSumForAddresses(db, addresses) {
  * @param {Array<Address>} addresses
  */
 async function transactionsHistoryForAddresses(
-  db,
-  addresses,
-  dateFrom,
-  sort,
-  limit = 20,
+  db: {query: function},
+  addresses: string,
+  dateFrom: Date,
+  sort: string,
+  limit: number = 20
 ) {
   // We are using sort as string as it cannot be sent as parameter
   const timeSort = sort === 'ASC' || sort === 'DESC' ? sort : 'ASC';
-  return db.query(
-    `
+  return db.query(`
     SELECT *
     FROM "txs"
     LEFT JOIN (SELECT * from "bestblock" LIMIT 1) f ON true
@@ -60,14 +61,12 @@ async function transactionsHistoryForAddresses(
         time > $2
     ORDER BY time ${timeSort}
     LIMIT ${limit}
-   `,
-    [addresses, dateFrom],
-  );
+   `, [addresses, dateFrom]);
 }
 
 module.exports = {
   filterUsedAddresses,
   utxoForAddresses,
   utxoSumForAddresses,
-  transactionsHistoryForAddresses,
+  transactionsHistoryForAddresses
 };
