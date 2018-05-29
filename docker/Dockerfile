@@ -14,4 +14,4 @@ RUN cd /usr/app \
 
 WORKDIR /usr/app
 
-CMD ["pm2", "start", "./src/index.js", "-i", "0", "--no-daemon"]
+CMD ["pm2", "start", "./flow-files/index.js", "-i", "0", "--no-daemon"]

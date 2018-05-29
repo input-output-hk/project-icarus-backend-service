@@ -7,7 +7,7 @@ import type { Pool } from 'pg';
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function filterUsedAddresses(db: Pool, addresses: string) {
+async function filterUsedAddresses(db: Pool, addresses: Array<string>) {
   return db.query({
     text: 'SELECT DISTINCT address FROM "tx_addresses" WHERE address = ANY($1)',
     values: [addresses],
@@ -21,13 +21,13 @@ async function filterUsedAddresses(db: Pool, addresses: string) {
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function utxoForAddresses(db: Pool, addresses: string) {
+async function utxoForAddresses(db: Pool, addresses: Array<string>) {
   return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [
     addresses
   ]);
 }
 
-async function utxoSumForAddresses(db: Pool, addresses: string) {
+async function utxoSumForAddresses(db: Pool, addresses: Array<string>) {
   return db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
     addresses
   ]);
@@ -42,7 +42,7 @@ async function utxoSumForAddresses(db: Pool, addresses: string) {
  */
 async function transactionsHistoryForAddresses(
   db: Pool,
-  addresses: string,
+  addresses: Array<string>,
   dateFrom: Date,
   sort: string,
   limit: number = 20

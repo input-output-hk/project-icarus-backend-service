@@ -125,6 +125,7 @@ declare module pg {
       ((event: string, listener: Function) => events$EventEmitter);
     */
 
+  // Added as a fix to the pg_v7.x.x.js Pool type schema
     ending: boolean;
   }
 

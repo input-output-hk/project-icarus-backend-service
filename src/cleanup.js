@@ -6,9 +6,7 @@ import type { Logger } from 'bunyan';
 const exitHandler = (db: Pool, logger: Logger) => options => () => {
   if (!db.ending) {
     logger.info('Cleaning the APP');
-    db
-      .end()
-      .then(() => {
+    db.end().then(() => {
       logger.info('DB Pool released!');
       if (options.exit) process.exit();
     }).catch(err => logger.error(err));

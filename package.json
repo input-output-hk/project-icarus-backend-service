@@ -5,9 +5,6 @@
   "main": "./src/index.js",
   "scripts": {
     "flow": "flow",
-    "flow:build": "flow-remove-types ./src/ -d ./lib/ --all --pretty",
-    "flow:deps": "flow-typed install",
-    "prepublish": "npm run build",
     "dev": "flow-remove-types ./src/ -d ./flow-files/ --all --pretty && export NODE_ENV=develop && ./node_modules/.bin/nodemon ./flow-files/index.js | ./node_modules/.bin/bunyan",
     "staging": "flow-remove-types ./src/ -d ./flow-files/ --all --pretty && export NODE_ENV=staging && ./node_modules/.bin/nodemon ./flow-files/index.js | ./node_modules/.bin/bunyan",
     "eslint": "eslint ./src",

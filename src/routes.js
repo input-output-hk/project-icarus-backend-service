@@ -10,7 +10,13 @@ const withPrefix = route => `/api${route}`;
 
 import type { Pool } from 'pg';
 import type { Logger } from 'bunyan';
-import type { LoggerObject } from 'types';
+import type { 
+  LoggerObject,
+  Request,
+  Response,
+  TxHistoryRequest,
+  SignedTxRequest
+} from 'types';
 
 /**
  * This method validates addresses request body
@@ -40,7 +46,7 @@ function validateDatetimeReq({ dateFrom } = {}) {
  * @param {Object} Order
  */
 function validateOrderReq({ order } = {}) {
-  if (!order || order !== 'ASC' && order !== 'DESC') {
+  if (!order || (order !== 'ASC' && order !== 'DESC')) {
     throw new Error('Order should be "ASC" or "DESC"');
   }
   return true;
@@ -65,8 +71,8 @@ function validateSignedTransactionReq({ signedTx } = {}) {
  * @param {*} Server Server Config object
  */
 const utxoForAddresses = (db: Pool, { logger }: LoggerObject) => async (
-    req: {body: {addresses: string}},
-    res: {send: Function},
+    req: Request,
+    res: Response,
     next: Function
   ) => {
   try {
@@ -89,8 +95,8 @@ const utxoForAddresses = (db: Pool, { logger }: LoggerObject) => async (
  * @param {*} Server Server Config Object
  */
 const filterUsedAddresses = (db: Pool, { logger }: LoggerObject) => async (
-  req: {body: {addresses: string}},
-  res: {send: Function},
+  req: Request,
+  res: Response,
   next: Function
 ) => {
   try {
@@ -112,8 +118,8 @@ const filterUsedAddresses = (db: Pool, { logger }: LoggerObject) => async (
  * @param {*} Server Server Config Object
  */
 const utxoSumForAddresses = (db: Pool, { logger }: LoggerObject) => async (
-  req: {body: {addresses: string}},
-  res: {send: Function},
+  req: Request,
+  res: Response,
   next: Function
 ) => {
   try {
@@ -135,8 +141,8 @@ const utxoSumForAddresses = (db: Pool, { logger }: LoggerObject) => async (
  * @param {*} Server Config Object
  */
 const transactionsHistory = (db: Pool, { logger }: LoggerObject) => async (
-  req: {body: {addresses: string, dateFrom: Date}, query: {order: string}},
-  res: {send: Function},
+  req: TxHistoryRequest,
+  res: Response,
   next: Function
 ) => {
   try {
@@ -168,8 +174,8 @@ const signedTransaction = (
   db: Pool,
   { logger, importerSendTxEndpoint }: {logger: Logger, importerSendTxEndpoint: string}
 ) => async (
-  req: {body: {addresses: string, signedTx: string}},
-  res: {send: Function},
+  req: SignedTxRequest,
+  res: Response,
   next: Function
 ) => {
   try {
@@ -208,7 +214,7 @@ const signedTransaction = (
  */
 const healthCheck = () => (
   req: {},
-  res: {send: Function},
+  res: Response,
   next: Function
 ) => {
   res.send({ version });

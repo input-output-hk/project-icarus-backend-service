@@ -26,7 +26,6 @@ function addHttps(defaultRestifyConfig) {
   return Object.assign({}, defaultRestifyConfig, httpsConfig);
 }
 
-//FIXME: fix flow error in routes loading
 createDB(config.get('db')).then(db => {
   logger.info('Connected to db');
 
@@ -35,8 +34,8 @@ createDB(config.get('db')).then(db => {
   };
 
   const restifyConfig = serverConfig.https
-  ? addHttps(defaultRestifyConfig)
-  : defaultRestifyConfig;
+    ? addHttps(defaultRestifyConfig)
+    : defaultRestifyConfig;
 
   const server = restify.createServer(restifyConfig);
 
