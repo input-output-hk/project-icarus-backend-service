@@ -1,11 +1,12 @@
 {
   "extends": "airbnb-base",
   "parser": "babel-eslint",
-  "plugins": [
-    "flowtype"
-  ],
+  "plugins": ["flowtype", "mocha"],
   "rules": {
     "arrow-parens": "off",
     "function-paren-newline": "off"
+  },
+  "env": {
+    "mocha": true
   }
 }

@@ -8,12 +8,12 @@ import type {
   Response,
   TxHistoryRequest,
   SignedTxRequest,
+  DbApi,
 } from 'types'; // eslint-disable-line
 
 const axios = require('axios');
 const moment = require('moment');
 const { version } = require('../package.json');
-const dbApi = require('./db-api');
 const errs = require('restify-errors');
 
 const withPrefix = route => `/api${route}`;
@@ -59,7 +59,7 @@ function validateSignedTransactionReq({ signedTx } = {}) {
  * @param {*} db Database
  * @param {*} Server Server Config object
  */
-const utxoForAddresses = (db: Pool, { logger }: LoggerObject) => async (
+const utxoForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
   req: Request,
   res: Response,
   next: Function,
@@ -67,7 +67,7 @@ const utxoForAddresses = (db: Pool, { logger }: LoggerObject) => async (
   try {
     logger.debug('[utxoForAddresses] request start');
     validateAddressesReq(req.body);
-    const result = await dbApi.utxoForAddresses(db, req.body.addresses);
+    const result = await dbApi.utxoForAddresses(req.body.addresses);
     res.send(result.rows);
     logger.debug('[utxoForAddresses] request end');
     return next();
@@ -83,7 +83,7 @@ const utxoForAddresses = (db: Pool, { logger }: LoggerObject) => async (
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const filterUsedAddresses = (db: Pool, { logger }: LoggerObject) => async (
+const filterUsedAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
   req: Request,
   res: Response,
   next: Function,
@@ -91,7 +91,7 @@ const filterUsedAddresses = (db: Pool, { logger }: LoggerObject) => async (
   try {
     logger.debug('[filterUsedAddresses] request start');
     validateAddressesReq(req.body);
-    const result = await dbApi.filterUsedAddresses(db, req.body.addresses);
+    const result = await dbApi.filterUsedAddresses(req.body.addresses);
     res.send(result.rows.reduce((acc, row) => acc.concat(row), []));
     logger.debug('[filterUsedAddresses] request end');
     return next();
@@ -106,7 +106,7 @@ const filterUsedAddresses = (db: Pool, { logger }: LoggerObject) => async (
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const utxoSumForAddresses = (db: Pool, { logger }: LoggerObject) => async (
+const utxoSumForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
   req: Request,
   res: Response,
   next: Function,
@@ -114,7 +114,7 @@ const utxoSumForAddresses = (db: Pool, { logger }: LoggerObject) => async (
   try {
     logger.debug('[utxoSumForAddresses] request start');
     validateAddressesReq(req.body);
-    const result = await dbApi.utxoSumForAddresses(db, req.body.addresses);
+    const result = await dbApi.utxoSumForAddresses(req.body.addresses);
     res.send(result.rows[0]);
     logger.debug('[utxoSumForAddresses] request end');
     return next();
@@ -129,7 +129,7 @@ const utxoSumForAddresses = (db: Pool, { logger }: LoggerObject) => async (
  * @param {*} db Database
  * @param {*} Server Config Object
  */
-const transactionsHistory = (db: Pool, { logger }: LoggerObject) => async (
+const transactionsHistory = (dbApi: DbApi, { logger }: LoggerObject) => async (
   req: TxHistoryRequest,
   res: Response,
   next: Function,
@@ -139,7 +139,6 @@ const transactionsHistory = (db: Pool, { logger }: LoggerObject) => async (
     validateAddressesReq(req.body);
     validateDatetimeReq(req.body);
     const result = await dbApi.transactionsHistoryForAddresses(
-      db,
       req.body.addresses,
       moment(req.body.dateFrom).toDate(),
       req.body.txHash,
@@ -159,7 +158,7 @@ const transactionsHistory = (db: Pool, { logger }: LoggerObject) => async (
  * @param {*} Server Server Config object
  */
 const signedTransaction = (
-  db: Pool,
+  dbApi: DbApi,
   {
     logger,
     importerSendTxEndpoint,

@@ -1,4 +1,6 @@
 // @flow
+import type { Pool } from 'pg'; // eslint-disable-line
+import type { DbApi } from 'types'; // eslint-disable-line
 
 const fs = require('fs');
 const pathLib = require('path');
@@ -8,6 +10,7 @@ const restifyBunyanLogger = require('restify-bunyan-logger');
 const config = require('config');
 const routes = require('./routes');
 const createDB = require('./db');
+const dbApi = require('./db-api');
 const configCleanup = require('./cleanup');
 
 const serverConfig = config.get('server');
@@ -51,7 +54,7 @@ createDB(config.get('db'))
 
     // Load routes defined in the server
     Object.values(routes).forEach(({ method, path, handler }: any) => {
-      server[method](path, handler(db, serverConfig));
+      server[method](path, handler(dbApi(db), serverConfig));
     });
 
     configCleanup(db, logger);

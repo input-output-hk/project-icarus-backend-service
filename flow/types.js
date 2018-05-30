@@ -1,4 +1,5 @@
 import type { Logger } from 'bunyan';
+import type { ResultSet } from 'pg';
 
 declare module types {
   declare type LoggerObject = {
@@ -31,5 +32,16 @@ declare module types {
       addresses: Array<string>,
       signedTx: string,
     },
+  };
+
+  declare type DbApi = {
+    filterUsedAddresses: (addresses: Array<string>) => Promise<ResultSet>,
+    utxoForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
+    utxoSumForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
+    transactionsHistoryForAddresses: (
+      addresses: Array<string>,
+      dateFrom: Date,
+      txHash: ?string,
+    ) => Promise<ResultSet>,
   };
 }

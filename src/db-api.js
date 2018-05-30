@@ -1,19 +1,21 @@
 // @flow
 
-import type { Pool } from 'pg';
+import type { Pool, ResultSet } from 'pg';
+import type { DbApi } from 'types'; // eslint-disable-line
 
 /**
  * Returns the list of addresses that were used at least once (as input or output)
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function filterUsedAddresses(db: Pool, addresses: Array<string>) {
-  return db.query({
+const filterUsedAddresses = (db: Pool) => async (
+  addresses: Array<string>,
+): Promise<ResultSet> =>
+  db.query({
     text: 'SELECT DISTINCT address FROM "tx_addresses" WHERE address = ANY($1)',
     values: [addresses],
     rowMode: 'array',
   });
-}
 
 /**
  * Queries UTXO table looking for unspents for given addresses
@@ -21,17 +23,13 @@ async function filterUsedAddresses(db: Pool, addresses: Array<string>) {
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function utxoForAddresses(db: Pool, addresses: Array<string>) {
-  return db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [
-    addresses,
-  ]);
-}
+const utxoForAddresses = (db: Pool) => async (addresses: Array<string>) =>
+  db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [addresses]);
 
-async function utxoSumForAddresses(db: Pool, addresses: Array<string>) {
-  return db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
+const utxoSumForAddresses = (db: Pool) => async (addresses: Array<string>) =>
+  db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
     addresses,
   ]);
-}
 
 // Cached queries
 const txHistoryQuery = (extraFilter = '', limit = 20) => `
@@ -63,21 +61,20 @@ const txHistoryQueries = {
  * @param {Db Object} db
  * @param {Array<Address>} addresses
  */
-async function transactionsHistoryForAddresses(
-  db: Pool,
+const transactionsHistoryForAddresses = (db: Pool) => async (
   addresses: Array<string>,
   dateFrom: Date,
   txHash: ?string,
-) {
+): Promise<ResultSet> => {
   if (txHash) {
     return db.query(txHistoryQueries.withTxHash, [addresses, dateFrom, txHash]);
   }
   return db.query(txHistoryQueries.withoutTxHash, [addresses, dateFrom]);
-}
-
-module.exports = {
-  filterUsedAddresses,
-  utxoForAddresses,
-  utxoSumForAddresses,
-  transactionsHistoryForAddresses,
 };
+
+module.exports = (db: Pool): DbApi => ({
+  filterUsedAddresses: filterUsedAddresses(db),
+  utxoForAddresses: utxoForAddresses(db),
+  utxoSumForAddresses: utxoSumForAddresses(db),
+  transactionsHistoryForAddresses: transactionsHistoryForAddresses(db),
+});
