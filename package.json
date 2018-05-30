@@ -4,8 +4,9 @@
   "description": "Icarus backend service that will allow wallet users to access blockchain data",
   "main": "./src/index.js",
   "scripts": {
-    "dev": "export NODE_ENV=develop && ./node_modules/.bin/nodemon ./src/index.js | ./node_modules/.bin/bunyan",
-    "staging": "export NODE_ENV=staging && ./node_modules/.bin/nodemon ./src/index.js | ./node_modules/.bin/bunyan",
+    "flow": "flow",
+    "dev": "flow-remove-types ./src/ -d ./flow-files/ --all --pretty && export NODE_ENV=develop && ./node_modules/.bin/nodemon ./flow-files/index.js | ./node_modules/.bin/bunyan",
+    "staging": "flow-remove-types ./src/ -d ./flow-files/ --all --pretty && export NODE_ENV=staging && ./node_modules/.bin/nodemon ./flow-files/index.js | ./node_modules/.bin/bunyan",
     "eslint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-docker": "./scripts/docker/build-docker.sh",
@@ -35,6 +36,8 @@
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.11.0",
+    "flow-bin": "0.73.0",
+    "flow-remove-types": "1.2.3",
     "nodemon": "1.17.3"
   }
 }

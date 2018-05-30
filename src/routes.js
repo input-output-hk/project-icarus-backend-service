@@ -1,3 +1,5 @@
+// @flow
+
 const axios = require('axios');
 const moment = require('moment');
 const { version } = require('../package.json');
@@ -5,6 +7,16 @@ const dbApi = require('./db-api');
 const errs = require('restify-errors');
 
 const withPrefix = route => `/api${route}`;
+
+import type { Pool } from 'pg';
+import type { Logger } from 'bunyan';
+import type { 
+  LoggerObject,
+  Request,
+  Response,
+  TxHistoryRequest,
+  SignedTxRequest
+} from 'types';
 
 /**
  * This method validates addresses request body
@@ -58,7 +70,11 @@ function validateSignedTransactionReq({ signedTx } = {}) {
  * @param {*} db Database
  * @param {*} Server Server Config object
  */
-const utxoForAddresses = (db, { logger }) => async (req, res, next) => {
+const utxoForAddresses = (db: Pool, { logger }: LoggerObject) => async (
+    req: Request,
+    res: Response,
+    next: Function
+  ) => {
   try {
     logger.debug('[utxoForAddresses] request start');
     validateAddressesReq(req.body);
@@ -78,7 +94,11 @@ const utxoForAddresses = (db, { logger }) => async (req, res, next) => {
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const filterUsedAddresses = (db, { logger }) => async (req, res, next) => {
+const filterUsedAddresses = (db: Pool, { logger }: LoggerObject) => async (
+  req: Request,
+  res: Response,
+  next: Function
+) => {
   try {
     logger.debug('[filterUsedAddresses] request start');
     validateAddressesReq(req.body);
@@ -97,7 +117,11 @@ const filterUsedAddresses = (db, { logger }) => async (req, res, next) => {
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const utxoSumForAddresses = (db, { logger }) => async (req, res, next) => {
+const utxoSumForAddresses = (db: Pool, { logger }: LoggerObject) => async (
+  req: Request,
+  res: Response,
+  next: Function
+) => {
   try {
     logger.debug('[utxoSumForAddresses] request start');
     validateAddressesReq(req.body);
@@ -116,7 +140,11 @@ const utxoSumForAddresses = (db, { logger }) => async (req, res, next) => {
  * @param {*} db Database
  * @param {*} Server Config Object
  */
-const transactionsHistory = (db, { logger }) => async (req, res, next) => {
+const transactionsHistory = (db: Pool, { logger }: LoggerObject) => async (
+  req: TxHistoryRequest,
+  res: Response,
+  next: Function
+) => {
   try {
     logger.debug('[transactionsHistory] request start');
     validateAddressesReq(req.body);
@@ -126,7 +154,7 @@ const transactionsHistory = (db, { logger }) => async (req, res, next) => {
       db,
       req.body.addresses,
       moment(req.body.dateFrom).toDate(),
-      req.query.order,
+      req.query.order
     );
     res.send(result.rows);
     logger.debug('[transactionsHistory] request end');
@@ -142,10 +170,13 @@ const transactionsHistory = (db, { logger }) => async (req, res, next) => {
  * @param {*} db Database
  * @param {*} Server Server Config object
  */
-const signedTransaction = (db, { logger, importerSendTxEndpoint }) => async (
-  req,
-  res,
-  next,
+const signedTransaction = (
+  db: Pool,
+  { logger, importerSendTxEndpoint }: {logger: Logger, importerSendTxEndpoint: string}
+) => async (
+  req: SignedTxRequest,
+  res: Response,
+  next: Function
 ) => {
   try {
     logger.debug('[signedTransaction] request start');
@@ -167,7 +198,7 @@ const signedTransaction = (db, { logger, importerSendTxEndpoint }) => async (
       return next(new Error('Unknown response from backend.'));
     }
     logger.error('[signedTransaction] Error while doing request to backend', response);
-    return next(new Error('Error trying to send transaction', response.data));
+    return next(new Error('Error trying to send transaction ' + response.data));
   } catch (err) {
     logger.error('[signedTransaction] Error', err);
     return next(new Error('Error trying to send transaction'));
@@ -181,7 +212,11 @@ const signedTransaction = (db, { logger, importerSendTxEndpoint }) => async (
  * @param {*} res
  * @param {*} next
  */
-const healthCheck = () => (req, res, next) => {
+const healthCheck = () => (
+  req: {},
+  res: Response,
+  next: Function
+) => {
   res.send({ version });
   return next();
 };
@@ -190,31 +225,31 @@ module.exports = {
   healthCheck: {
     method: 'get',
     path: withPrefix('/healthcheck'),
-    handler: healthCheck,
+    handler: healthCheck
   },
   filterUsedAddresses: {
     method: 'post',
     path: withPrefix('/addresses/filterUsed'),
-    handler: filterUsedAddresses,
+    handler: filterUsedAddresses
   },
   utxoForAddresses: {
     method: 'post',
     path: withPrefix('/txs/utxoForAddresses'),
-    handler: utxoForAddresses,
+    handler: utxoForAddresses
   },
   utxoSumForAddresses: {
     method: 'post',
     path: withPrefix('/txs/utxoSumForAddresses'),
-    handler: utxoSumForAddresses,
+    handler: utxoSumForAddresses
   },
   transactionsHistory: {
     method: 'post',
     path: withPrefix('/txs/history'),
-    handler: transactionsHistory,
+    handler: transactionsHistory
   },
   signedTransaction: {
     method: 'post',
     path: withPrefix('/txs/signed'),
-    handler: signedTransaction,
-  },
+    handler: signedTransaction
+  }
 };
