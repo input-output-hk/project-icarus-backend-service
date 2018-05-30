@@ -30,11 +30,14 @@
     "pg": "7.4.1",
     "restify": "7.1.1",
     "restify-bunyan-logger": "2.0.7",
-    "restify-cors-middleware": "1.1.0"
+    "restify-cors-middleware": "1.1.0",
+    "restify-errors": "6.1.0"
   },
   "devDependencies": {
+    "babel-eslint": "8.2.3",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-flowtype": "2.48.0",
     "eslint-plugin-import": "^2.11.0",
     "flow-bin": "0.73.0",
     "flow-remove-types": "1.2.3",
