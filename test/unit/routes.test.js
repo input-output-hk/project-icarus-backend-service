@@ -1,7 +1,7 @@
 const assert = require('assert');
 const sinon = require('sinon');
-const routes = require('../src/routes');
-const packageJson = require('../package.json');
+const routes = require('../../src/routes');
+const packageJson = require('../../package.json');
 
 const noop = () => {};
 const logger = {

@@ -4,7 +4,7 @@ const { consoleLogger } = require('../src/logger');
 module.exports = {
   server: {
     corsEnabledFor: ['*'],
-    logger: raw(consoleLogger),
+    logger: raw(consoleLogger('error')),
     importerSendTxEndpoint: 'http://ec2-18-206-30-1.compute-1.amazonaws.com:8200/api/txs/signed',
   },
   db: {
@@ -14,7 +14,7 @@ module.exports = {
     password: 'fake',
     port: '5432',
     min: 4,
-    max: 20,
+    max: 50,
     idleTimeoutMillis: 1000,
     connectionTimeoutMillis: 5000,
   },

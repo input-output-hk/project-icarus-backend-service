@@ -49,6 +49,8 @@ In order to run targeting staging DB from local environment, you need to:
 2. Go to the repository's path
 3. Execute the following command: `npm run staging`
 
+## Tests
+
 ## Production
 
 TBD
