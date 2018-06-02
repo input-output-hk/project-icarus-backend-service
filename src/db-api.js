@@ -1,7 +1,7 @@
 // @flow
 
 import type { Pool, ResultSet } from 'pg';
-import type { DbApi } from 'types'; // eslint-disable-line
+import type { DbApi } from 'icarus-backend'; // eslint-disable-line
 
 /**
  * Returns the list of addresses that were used at least once (as input or output)

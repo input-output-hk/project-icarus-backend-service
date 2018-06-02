@@ -1,7 +1,7 @@
 import type { Logger } from 'bunyan';
 import type { ResultSet } from 'pg';
 
-declare module types {
+declare module 'icarus-backend' {
   declare type LoggerObject = {
     logger: Logger,
   };
@@ -22,14 +22,10 @@ declare module types {
       dateFrom: Date,
       txHash: ?string,
     },
-    query: {
-      order: string,
-    },
   };
 
   declare type SignedTxRequest = {
     body: {
-      addresses: Array<string>,
       signedTx: string,
     },
   };

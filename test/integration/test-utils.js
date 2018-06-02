@@ -1,9 +1,11 @@
 // @flow
+import type { Hippie } from 'hippie';
 
-const hippie = require('hippie');
+// $FlowFixMe Fix this assignment as it throws an error
+const hippie: Hippie = require('hippie');
 const createServer = require('../../src/server');
 
-function api(server) {
+function api(server): Hippie {
   return hippie(server)
     .json()
     .base('http://localhost:8080/api');
@@ -13,14 +15,14 @@ function api(server) {
  * This function starts a server and executes test endpoint function on it
  * @param {function} testEndpoint Hippie functions to be called
  */
-async function runInServer(testEndpoint) {
+async function runInServer(testEndpoint: Hippie => Promise<boolean>) {
   const server = await createServer();
   let promise;
   try {
     await testEndpoint(api(server));
   } finally {
     promise = new Promise(resolve => {
-      server.close(() => resolve());
+      server.close(() => resolve(true));
     });
   }
   return promise;
@@ -28,9 +30,14 @@ async function runInServer(testEndpoint) {
 
 /**
  * Helper in order to use chai assertions with hippie expect function
- * @param {function} assertionsFn Set of assertions. It will fail the expectation if exception is returned
+ * It will call next if no errors, next(err) if an assertion thrown
+ * @param {function} assertionsFn Set of assertions.
  */
-const assertOnResults = assertionsFn => (res, body, next) => {
+const assertOnResults = (assertionsFn: (Object, Object, Function) => void) => (
+  res: Object,
+  body: Object,
+  next: Function,
+) => {
   try {
     assertionsFn(res, body, next);
     next();

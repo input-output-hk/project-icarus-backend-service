@@ -1,3 +1,4 @@
+// @flow
 const { runInServer } = require('./test-utils');
 const packageJson = require('../../package.json');
 

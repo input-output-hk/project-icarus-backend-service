@@ -1,14 +1,16 @@
+// @flow
 const assert = require('assert');
 const sinon = require('sinon');
+const Bunyan = require('bunyan');
 const routes = require('../../src/routes');
 const packageJson = require('../../package.json');
 
-const noop = () => {};
-const logger = {
-  debug: noop,
-  info: noop,
-  error: noop,
-};
+// eslint-disable-next-line new-cap
+const logger = new Bunyan.createLogger({
+  name: 'test',
+  // $FlowFixMe Doesn't like string literal
+  level: 'fatal',
+});
 
 describe('Routes', () => {
   const sendStub = sinon.fake();
@@ -41,6 +43,7 @@ describe('Routes', () => {
     it('should reject bodies without addresses', () => {
       const send = sinon.fake();
       const next = sinon.fake();
+      // $FlowFixMe Ignore this as we are trying invalid payloads
       handler({}, { send }, next);
       assert.equal(send.called, false);
       calledWithError(next, 'Addresses request length should be (0, 20]');
@@ -50,6 +53,7 @@ describe('Routes', () => {
       const send = sinon.fake();
       const next = sinon.fake();
       handler(
+        // $FlowFixMe Ignore this as we are trying invalid payloads
         { body: { addresses: Array(21).fill('an_address') } },
         { send },
         next,
@@ -175,6 +179,9 @@ describe('Routes', () => {
         {
           body: {
             addresses: ['an_address'],
+            // $FlowFixMe ignore this line as we are testing invalid dateFrom
+            dateFrom: undefined,
+            txHash: 'a_hash',
           },
         },
         { send },
@@ -192,7 +199,8 @@ describe('Routes', () => {
         {
           body: {
             addresses: Array(20).fill('an_address'),
-            dateFrom: '2017-10-23',
+            dateFrom: new Date(),
+            txHash: 'aHash',
           },
         },
         { send },
@@ -213,10 +221,14 @@ describe('Routes', () => {
     });
 
     it('should reject empty bodies', async () => {
-      const handler = routes.signedTransaction.handler(dbApi, { logger });
+      const handler = routes.signedTransaction.handler(dbApi, {
+        logger,
+        importerSendTxEndpoint: 'fake',
+      });
       const send = sinon.fake();
       const next = sinon.fake.resolves(true);
-      await handler({ body: {} }, { send }, next);
+      // $FlowFixMe Ignore this error as we are testing invalid payload
+      await handler({ body: { signedTx: undefined } }, { send }, next);
       calledWithError(next, 'Error trying to send transaction');
     });
   });

@@ -2,9 +2,11 @@
 const Logger = require('bunyan');
 const defer = require('config/defer').deferConfig;
 
-const consoleLogger = (level: string = 'debug') =>
+// $FlowFixMe if setting types here, `conf` libray fails when parsing
+const consoleLogger = (level = 'debug') =>
   // eslint-disable-next-line new-cap
   new Logger.createLogger({
+    // $FlowFixMe `this` global object comes from defer
     name: defer(() => this.appName),
     level,
   });

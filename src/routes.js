@@ -1,6 +1,5 @@
 // @flow
 
-import type { Pool } from 'pg';
 import type { Logger } from 'bunyan';
 import type {
   LoggerObject,
@@ -9,7 +8,7 @@ import type {
   TxHistoryRequest,
   SignedTxRequest,
   DbApi,
-} from 'types'; // eslint-disable-line
+} from 'icarus-backend'; // eslint-disable-line
 
 const axios = require('axios');
 const moment = require('moment');
