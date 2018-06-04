@@ -17,6 +17,12 @@ const filterUsedAddresses = (db: Pool) => async (
     rowMode: 'array',
   });
 
+const unspentAddresses = (db: Pool) => async (): Promise<ResultSet> =>
+  db.query({
+    text: 'SELECT DISTINCT utxos.receiver FROM utxos',
+    rowMode: 'array',
+  });
+
 /**
  * Queries UTXO table looking for unspents for given addresses
  *
@@ -74,6 +80,7 @@ const transactionsHistoryForAddresses = (db: Pool) => async (
 
 module.exports = (db: Pool): DbApi => ({
   filterUsedAddresses: filterUsedAddresses(db),
+  unspentAddresses: unspentAddresses(db),
   utxoForAddresses: utxoForAddresses(db),
   utxoSumForAddresses: utxoSumForAddresses(db),
   transactionsHistoryForAddresses: transactionsHistoryForAddresses(db),

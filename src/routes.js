@@ -101,6 +101,28 @@ const filterUsedAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
 };
 
 /**
+ * Endpoint to hangle getting ALL unspent addresses
+ * @param {*} db Database
+ * @param {*} Server Server Config Object
+ */
+const unspentAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
+  req: Request,
+  res: Response,
+  next: Function,
+) => {
+  try {
+    logger.debug('[getUnspentAddresses] request start');
+    const result = await dbApi.unspentAddresses();
+    res.send(result.rows.reduce((acc, row) => acc.concat(row), []));
+    logger.debug('[getUnspentAddresses] request end');
+    return next();
+  } catch (err) {
+    logger.error('[getUnspentAddresses] Error', err);
+    return next(err);
+  }
+}
+
+/**
  * Endpoint to handle getting Tx History for given addresses and Date Filter
  * @param {*} db Database
  * @param {*} Server Server Config Object
@@ -220,6 +242,11 @@ module.exports = {
     method: 'post',
     path: withPrefix('/addresses/filterUsed'),
     handler: filterUsedAddresses,
+  },
+  unspentAddresses: {
+    method: 'post',
+    path: withPrefix('/addresses/unspent'),
+    handler: unspentAddresses,
   },
   utxoForAddresses: {
     method: 'post',

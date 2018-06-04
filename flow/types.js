@@ -32,6 +32,7 @@ declare module 'icarus-backend' {
 
   declare type DbApi = {
     filterUsedAddresses: (addresses: Array<string>) => Promise<ResultSet>,
+    unspentAddresses: () => Promise<ResultSet>,
     utxoForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
     utxoSumForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
     transactionsHistoryForAddresses: (

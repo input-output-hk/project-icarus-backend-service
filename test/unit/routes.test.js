@@ -19,6 +19,7 @@ describe('Routes', () => {
   // as we are checking the response is being returned, not the queries
   const dbApi = {
     filterUsedAddresses: sinon.fake.returns({ rows: [['a1', 'a2']] }),
+    unspentAddresses: sinon.fake.returns({ rows: [['a1', 'a2']] }),
     utxoForAddresses: sinon.fake.returns({ rows: ['utxo1', 'utxo2'] }),
     utxoSumForAddresses: sinon.fake.returns({ rows: [10, 20] }),
     transactionsHistoryForAddresses: sinon.fake.returns({
