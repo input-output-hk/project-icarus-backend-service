@@ -5,6 +5,7 @@ import type { DbApi } from 'icarus-backend'; // eslint-disable-line
 const fs = require('fs');
 const pathLib = require('path');
 const restify = require('restify');
+const WebSocket = require('ws');
 const corsMiddleware = require('restify-cors-middleware');
 const restifyBunyanLogger = require('restify-bunyan-logger');
 const config = require('config');
@@ -12,6 +13,7 @@ const routes = require('./routes');
 const createDB = require('./db');
 const dbApi = require('./db-api');
 const configCleanup = require('./cleanup');
+const manageConnections = require('./ws-connections');
 
 const serverConfig = config.get('server');
 const { logger } = serverConfig;
@@ -53,6 +55,9 @@ async function createServer() {
   Object.values(routes).forEach(({ method, path, handler }: any) => {
     server[method](path, handler(dbApi(db), serverConfig));
   });
+
+  const wss = new WebSocket.Server({ server });
+  wss.on('connection', manageConnections(dbApi(db), serverConfig));
 
   configCleanup(db, logger);
 

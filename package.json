@@ -32,12 +32,14 @@
     "axios": "0.18.0",
     "bunyan": "1.8.12",
     "config": "1.30.0",
+    "lazy.js": "0.5.1",
     "moment": "2.22.1",
     "pg": "7.4.1",
     "restify": "7.1.1",
     "restify-bunyan-logger": "2.0.7",
     "restify-cors-middleware": "1.1.0",
-    "restify-errors": "6.1.0"
+    "restify-errors": "6.1.0",
+    "ws": "5.2.0"
   },
   "devDependencies": {
     "babel-eslint": "8.2.3",
