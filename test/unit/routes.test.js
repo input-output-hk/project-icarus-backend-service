@@ -191,7 +191,7 @@ describe('Routes', () => {
       calledWithError(next, 'DateFrom should be a valid datetime');
     });
 
-    it('should accept valid bodies', async () => {
+    it('should accept valid bodies with txHash', async () => {
       const handler = routes.transactionsHistory.handler(dbApi, { logger });
       const send = sinon.fake();
       const next = sinon.fake.resolves(true);
@@ -201,6 +201,25 @@ describe('Routes', () => {
             addresses: Array(20).fill('an_address'),
             dateFrom: new Date(),
             txHash: 'aHash',
+          },
+        },
+        { send },
+        next,
+      );
+      sinon.assert.calledWith(send, ['tx1', 'tx2']);
+      assert.equal(next.called, true);
+    });
+
+    it('should accept valid bodies without txHash', async () => {
+      const handler = routes.transactionsHistory.handler(dbApi, { logger });
+      const send = sinon.fake();
+      const next = sinon.fake.resolves(true);
+      await handler(
+        {
+          body: {
+            addresses: Array(20).fill('an_address'),
+            dateFrom: new Date(),
+            txHash: undefined,
           },
         },
         { send },
