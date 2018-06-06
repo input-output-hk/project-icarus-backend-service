@@ -83,7 +83,7 @@ using the following config:
 * Password: mysecretpassword
 * Port: 5432
 
-Then, run `npm run integration-tests`
+Then, run `export NODE_ENV=test; npm run integration-tests`
 
 ### Coverage
 
