@@ -10,7 +10,9 @@ WORKDIR /usr/app
 COPY ./ /usr/app
 
 RUN cd /usr/app \
-			 && npm install --production
+			 && npm install --production \
+             && npm run remove-flow-types
+
 
 WORKDIR /usr/app
 
