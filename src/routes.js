@@ -152,6 +152,31 @@ const transactionsHistory = (dbApi: DbApi, { logger }: LoggerObject) => async (
 };
 
 /**
+ *
+ * @param {*} db Database
+ * @param {*} Server Config Object
+ */
+const pendingTransactions = (dbApi: DbApi, { logger }: LoggerObject) => async (
+  req: Request,
+  res: Response,
+  next: Function,
+) => {
+  try {
+    logger.debug('[pendingTransactions] request start');
+    validateAddressesReq(req.body);
+    const result = await dbApi.pendingTransactionsForAddresses(
+      req.body.addresses,
+    );
+    res.send(result.rows);
+    logger.debug('[pendingTransactions] request end');
+    return next();
+  } catch (err) {
+    logger.error('[pendingTransactions] Error', err);
+    return next(err);
+  }
+};
+
+/**
  * Broadcasts a signed transaction to the block-importer node
  * @param {*} db Database
  * @param {*} Server Server Config object
@@ -235,6 +260,11 @@ module.exports = {
     method: 'post',
     path: withPrefix('/txs/history'),
     handler: transactionsHistory,
+  },
+  pendingTransactions: {
+    method: 'post',
+    path: withPrefix('/txs/pending'),
+    handler: pendingTransactions,
   },
   signedTransaction: {
     method: 'post',
