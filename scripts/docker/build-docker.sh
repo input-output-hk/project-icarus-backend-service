@@ -7,6 +7,4 @@ source "$MY_DIR/helper.sh";
 PACKAGE_VERSION=$(readPackageJSON 'version');
 NAME=$(readPackageJSON 'name');
 
-flow-remove-types ./src/ -d ./flow-files/ --all --pretty;
-
 docker build -t "icarus/$NAME:$PACKAGE_VERSION" -f ./docker/Dockerfile .
