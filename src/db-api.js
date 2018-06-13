@@ -78,10 +78,29 @@ const transactionsHistoryForAddresses = (db: Pool) => async (
   return db.query(txHistoryQueries.withoutTxHash, [addresses, dateFrom]);
 };
 
+/**
+ * Queries DB looking for pending transactions including (either inputs or outputs)
+ * for the given addresses
+ *
+ * @param {Db Object} db
+ * @param {Array<Address>} addresses
+ */
+const pendingTransactionsForAddresses = (db: Pool) => async (
+  addresses: Array<string>,
+): Promise<ResultSet> =>
+  db.query(`
+    SELECT * FROM pending_txs
+    WHERE hash = ANY (
+        SELECT tx_hash FROM ptx_addresses
+        WHERE address = ANY($1)
+      )
+    ORDER BY created_time ASC`, [addresses]);
+
 module.exports = (db: Pool): DbApi => ({
   filterUsedAddresses: filterUsedAddresses(db),
   unspentAddresses: unspentAddresses(db),
   utxoForAddresses: utxoForAddresses(db),
   utxoSumForAddresses: utxoSumForAddresses(db),
   transactionsHistoryForAddresses: transactionsHistoryForAddresses(db),
+  pendingTransactionsForAddresses: pendingTransactionsForAddresses(db),
 });

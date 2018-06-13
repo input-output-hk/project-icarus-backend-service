@@ -5,6 +5,10 @@ module.exports = {
   server: {
     corsEnabledFor: ['*'],
     logger: raw(consoleLogger('error')),
+    port: 443,
+    https: {
+      tlsDir: './tls-files',
+    },
     importerSendTxEndpoint: 'http://ec2-18-206-30-1.compute-1.amazonaws.com:8200/api/txs/signed',
   },
   db: {

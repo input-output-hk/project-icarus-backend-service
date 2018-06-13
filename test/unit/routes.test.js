@@ -25,6 +25,9 @@ describe('Routes', () => {
     transactionsHistoryForAddresses: sinon.fake.returns({
       rows: ['tx1', 'tx2'],
     }),
+    pendingTransactionsForAddresses: sinon.fake.returns({
+      rows: ['ptx1', 'ptx2'],
+    }),
   };
 
   function calledWithError(spy, message) {
@@ -192,7 +195,7 @@ describe('Routes', () => {
       calledWithError(next, 'DateFrom should be a valid datetime');
     });
 
-    it('should accept valid bodies', async () => {
+    it('should accept valid bodies with txHash', async () => {
       const handler = routes.transactionsHistory.handler(dbApi, { logger });
       const send = sinon.fake();
       const next = sinon.fake.resolves(true);
@@ -208,6 +211,56 @@ describe('Routes', () => {
         next,
       );
       sinon.assert.calledWith(send, ['tx1', 'tx2']);
+      assert.equal(next.called, true);
+    });
+
+    it('should accept valid bodies without txHash', async () => {
+      const handler = routes.transactionsHistory.handler(dbApi, { logger });
+      const send = sinon.fake();
+      const next = sinon.fake.resolves(true);
+      await handler(
+        {
+          body: {
+            addresses: Array(20).fill('an_address'),
+            dateFrom: new Date(),
+            txHash: undefined,
+          },
+        },
+        { send },
+        next,
+      );
+      sinon.assert.calledWith(send, ['tx1', 'tx2']);
+      assert.equal(next.called, true);
+    });
+  });
+
+  describe('Pending transactions', () => {
+    it('should have POST as method and /txs/pending as path', () => {
+      validateMethodAndPath(
+        routes.pendingTransactions,
+        'post',
+        '/api/txs/pending',
+      );
+    });
+
+    assertInvalidAddressesPayload(
+      routes.pendingTransactions.handler(dbApi, { logger }),
+    );
+
+    it('should accept bodies with 20 addresses', async () => {
+      const handler = routes.pendingTransactions.handler(dbApi, { logger });
+      const send = sinon.fake();
+      const next = sinon.fake.resolves(true);
+      await handler(
+        {
+          body: {
+            addresses: Array(20).fill('an_address'),
+          },
+        },
+        { send },
+        next,
+      );
+      sinon.assert.calledWith(send, ['ptx1', 'ptx2']);
       assert.equal(next.called, true);
     });
   });

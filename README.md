@@ -51,7 +51,7 @@ export DB_PORT=8080
 2.  Import the environment variables in your terminal, e.g: `source ~/path/to/file` (To verify
     the variables where exported: `echo $DB`)
 3.  Go to the repository's path
-4.  Execute the following command: `npm run staging`
+4.  Execute the following command: `npm run dev`
 
 ## Checks & Tests
 
@@ -83,7 +83,7 @@ using the following config:
 * Password: mysecretpassword
 * Port: 5432
 
-Then, run `npm run integration-tests`
+Then, run `export NODE_ENV=test; npm run integration-tests`
 
 ### Coverage
 

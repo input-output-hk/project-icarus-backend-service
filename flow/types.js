@@ -40,5 +40,6 @@ declare module 'icarus-backend' {
       dateFrom: Date,
       txHash: ?string,
     ) => Promise<ResultSet>,
+    pendingTransactionsForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
   };
 }
