@@ -19,6 +19,6 @@ module.exports = {
     min: 4,
     max: 20,
     idleTimeoutMillis: 1000,
-    connectionTimeoutMillis: 1000,
+    connectionTimeoutMillis: 5000,
   },
 };
