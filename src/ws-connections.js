@@ -3,36 +3,33 @@ import type {
   LoggerObject,
   DbApi,
 } from 'icarus-backend'; // eslint-disable-line
-
-const Lazy = require('lazy.js');
+const _ = require('lodash');
 
 const fromMessage: any = JSON.parse;
 const toMessage = JSON.stringify;
 
 const MSG_TYPE_RESTORE = 'RESTORE';
-// FIXME: Manage the case of more than one step.
-const ADDRESSES_CHUNK_SIZE = 1000000000;
 
-function handleRestore(
+async function handleRestore(
   dbApi: DbApi,
   { logger }: LoggerObject,
   ws: any,
-): void {
-  dbApi.unspentAddresses().then(result => {
-    logger.debug(`[WS::onMessage] ${MSG_TYPE_RESTORE} - Db result ready`);
-    const addresses = Lazy(result.rows);
-    logger.debug(`[WS::onMessage] ${MSG_TYPE_RESTORE} - Addresses processing start`);
-    addresses
-      .flatten()
-      .chunk(ADDRESSES_CHUNK_SIZE)
-      .each((chunk, index) => {
-        logger.debug(`[WS::onMessage] ${MSG_TYPE_RESTORE} - Addresses processing step ${index}`);
-        ws.send(toMessage({
-          msg: MSG_TYPE_RESTORE,
-          addresses: chunk,
-        }));
-      });
-  });
+) {
+  try {
+    logger.debug('[WS::handleRestore] Start');
+    const result = await dbApi.unspentAddresses();
+    logger.debug('[WS::handleRestore] Db result ready');
+    logger.debug('[WS::handleRestore] Addresses processing start');
+    const addresses = _.flatten(result.rows);
+    logger.debug('[WS::handleRestore] About to send the addresses');
+    ws.send(toMessage({
+      msg: MSG_TYPE_RESTORE,
+      addresses,
+    }));
+    logger.debug('[WS::handleRestore] End');
+  } catch (err) {
+    logger.error('[WS::handleRestore]', err);
+  }
 }
 
 module.exports = (dbApi: DbApi, { logger }: LoggerObject) => (ws: any) => {
