@@ -4,7 +4,6 @@ import type { Logger } from 'bunyan';
 import type {
   LoggerObject,
   Request,
-  Response,
   TxHistoryRequest,
   SignedTxRequest,
   DbApi,
@@ -60,20 +59,12 @@ function validateSignedTransactionReq({ signedTx } = {}) {
  */
 const utxoForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
   req: Request,
-  res: Response,
-  next: Function,
 ) => {
-  try {
-    logger.debug('[utxoForAddresses] request start');
-    validateAddressesReq(req.body);
-    const result = await dbApi.utxoForAddresses(req.body.addresses);
-    res.send(result.rows);
-    logger.debug('[utxoForAddresses] request end');
-    return next();
-  } catch (err) {
-    logger.error('[utxoForAddresses] Error', err);
-    return next(err);
-  }
+  validateAddressesReq(req.body);
+  logger.debug('[utxoForAddresses] request is valid');
+  const result = await dbApi.utxoForAddresses(req.body.addresses);
+  logger.debug('[utxoForAddresses] result calculated');
+  return result.rows;
 };
 
 /**
@@ -84,20 +75,12 @@ const utxoForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
  */
 const filterUsedAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
   req: Request,
-  res: Response,
-  next: Function,
 ) => {
-  try {
-    logger.debug('[filterUsedAddresses] request start');
-    validateAddressesReq(req.body);
-    const result = await dbApi.filterUsedAddresses(req.body.addresses);
-    res.send(result.rows.reduce((acc, row) => acc.concat(row), []));
-    logger.debug('[filterUsedAddresses] request end');
-    return next();
-  } catch (err) {
-    logger.error('[filterUsedAddresses] Error', err);
-    return next(err);
-  }
+  validateAddressesReq(req.body);
+  logger.debug('[filterUsedAddresses] request is valid');
+  const result = await dbApi.filterUsedAddresses(req.body.addresses);
+  logger.debug('[filterUsedAddresses] result calculated');
+  return result.rows.reduce((acc, row) => acc.concat(row), []);
 };
 
 /**
@@ -107,20 +90,12 @@ const filterUsedAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
  */
 const utxoSumForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
   req: Request,
-  res: Response,
-  next: Function,
 ) => {
-  try {
-    logger.debug('[utxoSumForAddresses] request start');
-    validateAddressesReq(req.body);
-    const result = await dbApi.utxoSumForAddresses(req.body.addresses);
-    res.send(result.rows[0]);
-    logger.debug('[utxoSumForAddresses] request end');
-    return next();
-  } catch (err) {
-    logger.error('[utxoSumForAddresses] Error', err);
-    return next(err);
-  }
+  validateAddressesReq(req.body);
+  logger.debug('[utxoSumForAddresses] request is valid');
+  const result = await dbApi.utxoSumForAddresses(req.body.addresses);
+  logger.debug('[utxoSumForAddresses] result calculated');
+  return result.rows[0];
 };
 
 /**
@@ -130,25 +105,17 @@ const utxoSumForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
  */
 const transactionsHistory = (dbApi: DbApi, { logger }: LoggerObject) => async (
   req: TxHistoryRequest,
-  res: Response,
-  next: Function,
 ) => {
-  try {
-    logger.debug('[transactionsHistory] request start');
-    validateAddressesReq(req.body);
-    validateDatetimeReq(req.body);
-    const result = await dbApi.transactionsHistoryForAddresses(
-      req.body.addresses,
-      moment(req.body.dateFrom).toDate(),
-      req.body.txHash,
-    );
-    res.send(result.rows);
-    logger.debug('[transactionsHistory] request end');
-    return next();
-  } catch (err) {
-    logger.error('[transactionsHistory] Error', err);
-    return next(err);
-  }
+  validateAddressesReq(req.body);
+  validateDatetimeReq(req.body);
+  logger.debug('[transactionsHistory] request is valid');
+  const result = await dbApi.transactionsHistoryForAddresses(
+    req.body.addresses,
+    moment(req.body.dateFrom).toDate(),
+    req.body.txHash,
+  );
+  logger.debug('[transactionsHistory] result calculated');
+  return result.rows;
 };
 
 /**
@@ -158,22 +125,14 @@ const transactionsHistory = (dbApi: DbApi, { logger }: LoggerObject) => async (
  */
 const pendingTransactions = (dbApi: DbApi, { logger }: LoggerObject) => async (
   req: Request,
-  res: Response,
-  next: Function,
 ) => {
-  try {
-    logger.debug('[pendingTransactions] request start');
-    validateAddressesReq(req.body);
-    const result = await dbApi.pendingTransactionsForAddresses(
-      req.body.addresses,
-    );
-    res.send(result.rows);
-    logger.debug('[pendingTransactions] request end');
-    return next();
-  } catch (err) {
-    logger.error('[pendingTransactions] Error', err);
-    return next(err);
-  }
+  validateAddressesReq(req.body);
+  logger.debug('[pendingTransactions] request is valid');
+  const result = await dbApi.pendingTransactionsForAddresses(
+    req.body.addresses,
+  );
+  logger.debug('[pendingTransactions] result calculated');
+  return result.rows;
 };
 
 /**
@@ -187,39 +146,36 @@ const signedTransaction = (
     logger,
     importerSendTxEndpoint,
   }: { logger: Logger, importerSendTxEndpoint: string },
-) => async (req: SignedTxRequest, res: Response, next: Function) => {
+) => async (req: SignedTxRequest) => {
   try {
-    logger.debug('[signedTransaction] request start');
     validateSignedTransactionReq(req.body);
+    logger.debug('[signedTransaction] request start');
     const response = await axios.post(importerSendTxEndpoint, req.body);
+    logger.debug('[signedTransaction] transaction sent to backend, response:', response);
     if (response.status === 200) {
       const parsedBody = response.data;
       if (parsedBody.Right) {
         // "Right" means 200 ok (success) -> also handle if Right: false (boolean response)
-        res.send(parsedBody.Right);
-        logger.debug('[signedTransaction] request end');
-        return next();
+        return parsedBody.Right;
       } else if (parsedBody.Left) {
         // "Left" means error case -> return error with contents (exception on nextUpdate)
         logger.debug('[signedTransaction] Error trying to send transaction');
-        return next(
-          new errs.InvalidContentError(
-            'Error trying to send transaction',
-            parsedBody.Left.contents,
-          ),
+        throw new errs.InvalidContentError(
+          'Error trying to send transaction',
+          parsedBody.Left.contents,
         );
       }
       logger.debug('[signedTransaction] Unknown response from backend');
-      return next(new Error('Unknown response from backend.'));
+      throw new Error('Unknown response from backend.');
     }
     logger.error(
       '[signedTransaction] Error while doing request to backend',
       response,
     );
-    return next(new Error(`Error trying to send transaction ${response.data}`));
+    throw new Error(`Error trying to send transaction ${response.data}`);
   } catch (err) {
     logger.error('[signedTransaction] Error', err);
-    return next(new Error('Error trying to send transaction'));
+    throw new Error('Error trying to send transaction');
   }
 };
 
@@ -230,10 +186,7 @@ const signedTransaction = (
  * @param {*} res
  * @param {*} next
  */
-const healthCheck = () => (req: {}, res: Response, next: Function) => {
-  res.send({ version });
-  return next();
-};
+const healthCheck = () => () => Promise.resolve({ version });
 
 module.exports = {
   healthCheck: {
