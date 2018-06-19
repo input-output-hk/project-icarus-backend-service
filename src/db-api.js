@@ -4,6 +4,16 @@ import type { Pool, ResultSet } from 'pg';
 import type { DbApi } from 'icarus-backend'; // eslint-disable-line
 
 /**
+ * This function creates ($1, $2, ...., $N) string in order to be able to do a
+ * ANY (VALUES ...) query based on the suggestion stated in
+ * https://www.datadoghq.com/blog/100x-faster-postgres-performance-by-changing-1-line/
+ * @param {*} addresses
+ * @param {*} offset
+ */
+const anyAddressParams = (addresses, offset = 1) =>
+  `(${addresses.map((name, i) => `$${i + offset}`).join('),(')})`;
+
+/**
  * Returns the list of addresses that were used at least once (as input or output)
  * @param {Db Object} db
  * @param {Array<Address>} addresses
@@ -12,8 +22,8 @@ const filterUsedAddresses = (db: Pool) => async (
   addresses: Array<string>,
 ): Promise<ResultSet> =>
   db.query({
-    text: 'SELECT DISTINCT address FROM "tx_addresses" WHERE address = ANY($1)',
-    values: [addresses],
+    text: `SELECT DISTINCT address FROM "tx_addresses" WHERE address = ANY(VALUES ${anyAddressParams(addresses)})`,
+    values: addresses,
     rowMode: 'array',
   });
 
@@ -30,26 +40,26 @@ const unspentAddresses = (db: Pool) => async (): Promise<ResultSet> =>
  * @param {Array<Address>} addresses
  */
 const utxoForAddresses = (db: Pool) => async (addresses: Array<string>) =>
-  db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [addresses]);
+  db.query(`SELECT * FROM "utxos" WHERE receiver = ANY(VALUES ${anyAddressParams(addresses)})`, addresses);
 
 const utxoSumForAddresses = (db: Pool) => async (addresses: Array<string>) =>
-  db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
+  db.query(
+    `SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY(VALUES ${anyAddressParams(addresses)})`,
     addresses,
-  ]);
-
+  );
 // Cached queries
-const txHistoryQuery = (extraFilter = '', limit = 20) => `
+const txHistoryQuery = (extraFilter = '', limit = 20) => (addresses) => `
   SELECT *
   FROM "txs"
   LEFT JOIN (SELECT * from "bestblock" LIMIT 1) f ON true
   WHERE 
-    hash = ANY (
-      SELECT tx_hash 
-      FROM "tx_addresses"
-      where address = ANY ($1)
-    )
+      time >= $1
     AND 
-      time >= $2
+      hash = ANY (
+        SELECT tx_hash 
+        FROM "tx_addresses"
+        where address = ANY(VALUES ${anyAddressParams(addresses, 2)})
+      )
     ${extraFilter}   
   ORDER BY time ASC, hash ASC
   LIMIT ${limit}
@@ -73,9 +83,11 @@ const transactionsHistoryForAddresses = (db: Pool) => async (
   txHash: ?string,
 ): Promise<ResultSet> => {
   if (txHash) {
-    return db.query(txHistoryQueries.withTxHash, [addresses, dateFrom, txHash]);
+    return db.query(
+      txHistoryQueries.withTxHash(addresses), [dateFrom, ...addresses].concat([txHash]),
+    );
   }
-  return db.query(txHistoryQueries.withoutTxHash, [addresses, dateFrom]);
+  return db.query(txHistoryQueries.withoutTxHash(addresses), [dateFrom, ...addresses]);
 };
 
 /**
