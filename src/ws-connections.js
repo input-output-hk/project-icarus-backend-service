@@ -1,6 +1,6 @@
 // @flow
 import type {
-  LoggerObject,
+  ServerConfig,
   DbApi,
 } from 'icarus-backend'; // eslint-disable-line
 const _ = require('lodash');
@@ -12,7 +12,7 @@ const MSG_TYPE_RESTORE = 'RESTORE';
 
 async function handleRestore(
   dbApi: DbApi,
-  { logger }: LoggerObject,
+  { logger }: ServerConfig,
   ws: any,
 ) {
   try {
@@ -32,7 +32,7 @@ async function handleRestore(
   }
 }
 
-module.exports = (dbApi: DbApi, { logger }: LoggerObject) => (ws: any) => {
+module.exports = (dbApi: DbApi, { logger }: ServerConfig) => (ws: any) => {
   ws.on('message', (msg) => {
     logger.debug(`[WS::onMessage] ${msg}`);
     const data = fromMessage(msg);

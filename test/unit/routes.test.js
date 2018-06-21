@@ -17,6 +17,8 @@ const logger = new Bunyan.createLogger({
   level: 'fatal',
 });
 
+const apiConfig = { addressesRequestLimit: 50 };
+
 describe('Routes', () => {
   // This returns fake data. It's ok if they are not real objects (for example utxo or txs)
   // as we are checking the response is being returned, not the queries
@@ -40,23 +42,29 @@ describe('Routes', () => {
   }
 
   function assertInvalidAddressesPayload(handler) {
-    it('should reject bodies without addresses', async () => {
+    it('should reject bodies without addresses', () => {
       // $FlowFixMe Ignore this as we are trying invalid payloads
       const response = handler({});
-      expect(response).to.be.rejectedWith(
+      return expect(response).to.be.rejectedWith(
         Error,
-        'Addresses request length should be (0, 20]',
+        `Addresses request length should be (0, ${
+          apiConfig.addressesRequestLimit
+        }]`,
       );
     });
 
-    it('should reject bodies with more than 20 addresses', () => {
+    it(`should reject bodies with more than ${
+      apiConfig.addressesRequestLimit
+    } addresses`, () => {
       const response = handler(
         // $FlowFixMe Ignore this as we are trying invalid payloads
-        { body: { addresses: Array(21).fill('an_address') } },
+        { body: { addresses: Array(apiConfig.addressesRequestLimit + 1).fill('an_address') } },
       );
-      expect(response).to.be.rejectedWith(
+      return expect(response).to.be.rejectedWith(
         Error,
-        'Addresses request length should be (0, 20]',
+        `Addresses request length should be (0, ${
+          apiConfig.addressesRequestLimit
+        }]`,
       );
     });
   }
@@ -69,7 +77,7 @@ describe('Routes', () => {
     it('should return package.json version as response', async () => {
       const handler = routes.healthCheck.handler();
       const response = await handler();
-      expect(response).to.eql({ version: packageJson.version });
+      return expect(response).to.eql({ version: packageJson.version });
     });
   });
 
@@ -83,15 +91,18 @@ describe('Routes', () => {
     });
 
     assertInvalidAddressesPayload(
-      routes.filterUsedAddresses.handler(dbApi, { logger }),
+      routes.filterUsedAddresses.handler(dbApi, { logger, apiConfig }),
     );
 
     it('should accept bodies with 20 addresses', async () => {
-      const handler = routes.filterUsedAddresses.handler(dbApi, { logger });
+      const handler = routes.filterUsedAddresses.handler(dbApi, {
+        logger,
+        apiConfig,
+      });
       const response = await handler({
         body: { addresses: Array(20).fill('an_address') },
       });
-      expect(response).to.eql(['a1', 'a2']);
+      return expect(response).to.eql(['a1', 'a2']);
     });
   });
 
@@ -105,15 +116,18 @@ describe('Routes', () => {
     });
 
     assertInvalidAddressesPayload(
-      routes.utxoForAddresses.handler(dbApi, { logger }),
+      routes.utxoForAddresses.handler(dbApi, { logger, apiConfig }),
     );
 
     it('should accept bodies with 20 addresses', async () => {
-      const handler = routes.utxoForAddresses.handler(dbApi, { logger });
+      const handler = routes.utxoForAddresses.handler(dbApi, {
+        logger,
+        apiConfig,
+      });
       const response = await handler({
         body: { addresses: Array(20).fill('an_address') },
       });
-      expect(response).to.eql(['utxo1', 'utxo2']);
+      return expect(response).to.eql(['utxo1', 'utxo2']);
     });
   });
 
@@ -127,15 +141,18 @@ describe('Routes', () => {
     });
 
     assertInvalidAddressesPayload(
-      routes.utxoSumForAddresses.handler(dbApi, { logger }),
+      routes.utxoSumForAddresses.handler(dbApi, { logger, apiConfig }),
     );
 
     it('should accept bodies with 20 addresses', async () => {
-      const handler = routes.utxoSumForAddresses.handler(dbApi, { logger });
+      const handler = routes.utxoSumForAddresses.handler(dbApi, {
+        logger,
+        apiConfig,
+      });
       const response = await handler({
         body: { addresses: Array(20).fill('an_address') },
       });
-      expect(response).to.equal(10);
+      return expect(response).to.equal(10);
     });
   });
 
@@ -149,11 +166,14 @@ describe('Routes', () => {
     });
 
     assertInvalidAddressesPayload(
-      routes.transactionsHistory.handler(dbApi, { logger }),
+      routes.transactionsHistory.handler(dbApi, { logger, apiConfig }),
     );
 
     it('should fail if no dateFrom sent', async () => {
-      const handler = routes.transactionsHistory.handler(dbApi, { logger });
+      const handler = routes.transactionsHistory.handler(dbApi, {
+        logger,
+        apiConfig,
+      });
       const response = handler({
         body: {
           addresses: ['an_address'],
@@ -162,14 +182,17 @@ describe('Routes', () => {
           txHash: 'a_hash',
         },
       });
-      expect(response).to.be.rejectedWith(
+      return expect(response).to.be.rejectedWith(
         Error,
         'DateFrom should be a valid datetime',
       );
     });
 
     it('should accept valid bodies with txHash', async () => {
-      const handler = routes.transactionsHistory.handler(dbApi, { logger });
+      const handler = routes.transactionsHistory.handler(dbApi, {
+        logger,
+        apiConfig,
+      });
       const response = await handler({
         body: {
           addresses: Array(20).fill('an_address'),
@@ -177,11 +200,14 @@ describe('Routes', () => {
           txHash: 'aHash',
         },
       });
-      expect(response).to.eql(['tx1', 'tx2']);
+      return expect(response).to.eql(['tx1', 'tx2']);
     });
 
     it('should accept valid bodies without txHash', async () => {
-      const handler = routes.transactionsHistory.handler(dbApi, { logger });
+      const handler = routes.transactionsHistory.handler(dbApi, {
+        logger,
+        apiConfig,
+      });
       const response = await handler({
         body: {
           addresses: Array(20).fill('an_address'),
@@ -189,7 +215,7 @@ describe('Routes', () => {
           txHash: undefined,
         },
       });
-      expect(response).to.eql(['tx1', 'tx2']);
+      return expect(response).to.eql(['tx1', 'tx2']);
     });
   });
 
@@ -203,17 +229,20 @@ describe('Routes', () => {
     });
 
     assertInvalidAddressesPayload(
-      routes.pendingTransactions.handler(dbApi, { logger }),
+      routes.pendingTransactions.handler(dbApi, { logger, apiConfig }),
     );
 
     it('should accept bodies with 20 addresses', async () => {
-      const handler = routes.pendingTransactions.handler(dbApi, { logger });
+      const handler = routes.pendingTransactions.handler(dbApi, {
+        logger,
+        apiConfig,
+      });
       const response = await handler({
         body: {
           addresses: Array(20).fill('an_address'),
         },
       });
-      expect(response).to.eql(['ptx1', 'ptx2']);
+      return expect(response).to.eql(['ptx1', 'ptx2']);
     });
   });
 
@@ -233,7 +262,7 @@ describe('Routes', () => {
       });
       // $FlowFixMe Ignore this error as we are testing invalid payload
       const request = handler({ body: { signedTx: undefined } });
-      expect(request).to.be.rejectedWith(
+      return expect(request).to.be.rejectedWith(
         Error,
         'Error trying to send transaction',
       );

@@ -2,8 +2,13 @@ import type { Logger } from 'bunyan';
 import type { ResultSet } from 'pg';
 
 declare module 'icarus-backend' {
-  declare type LoggerObject = {
+  declare type ServerConfig = {
     logger: Logger,
+    apiConfig: ApiConfig
+  };
+
+  declare type ApiConfig = {
+    addressesRequestLimit: number
   };
 
   declare type Request = {
