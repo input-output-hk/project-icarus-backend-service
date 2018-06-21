@@ -1,11 +1,11 @@
 {
   "lambda": {
-    "role": "icarus-poc-backend-service-executor",
-    "name": "icarus-poc-backend-service",
+    "role": "icarus-poc-backend-staging-executor",
+    "name": "icarus-poc-backend-staging",
     "region": "us-east-1"
   },
   "api": {
-    "id": "bnlio5bot9",
+    "id": "lld5qq5jl5",
     "module": "aws-lambda"
   }
 }
