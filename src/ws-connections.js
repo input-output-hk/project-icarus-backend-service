@@ -32,13 +32,13 @@ async function handleRestore(
   }
 }
 
-module.exports = (dbApi: DbApi, { logger }: ServerConfig) => (ws: any) => {
+module.exports = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) => (ws: any) => {
   ws.on('message', (msg) => {
     logger.debug(`[WS::onMessage] ${msg}`);
     const data = fromMessage(msg);
     switch (data.msg) {
       case MSG_TYPE_RESTORE:
-        handleRestore(dbApi, { logger }, ws);
+        handleRestore(dbApi, { logger, apiConfig }, ws);
         break;
       default:
         break;
