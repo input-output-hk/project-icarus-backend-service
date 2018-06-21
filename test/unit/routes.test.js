@@ -17,7 +17,7 @@ const logger = new Bunyan.createLogger({
   level: 'fatal',
 });
 
-const apiConfig = { addressesRequestLimit: 50 };
+const apiConfig = { addressesRequestLimit: 50, txHistoryResponseLimit: 20 };
 
 describe('Routes', () => {
   // This returns fake data. It's ok if they are not real objects (for example utxo or txs)

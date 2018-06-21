@@ -110,6 +110,7 @@ const transactionsHistory = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) 
   validateDatetimeReq(req.body);
   logger.debug('[transactionsHistory] request is valid');
   const result = await dbApi.transactionsHistoryForAddresses(
+    apiConfig.txHistoryResponseLimit,
     req.body.addresses,
     moment(req.body.dateFrom).toDate(),
     req.body.txHash,

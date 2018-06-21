@@ -8,7 +8,8 @@ declare module 'icarus-backend' {
   };
 
   declare type ApiConfig = {
-    addressesRequestLimit: number
+    addressesRequestLimit: number,
+    txHistoryResponseLimit: number,
   };
 
   declare type Request = {
@@ -41,6 +42,7 @@ declare module 'icarus-backend' {
     utxoForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
     utxoSumForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
     transactionsHistoryForAddresses: (
+      limit: number,
       addresses: Array<string>,
       dateFrom: Date,
       txHash: ?string,

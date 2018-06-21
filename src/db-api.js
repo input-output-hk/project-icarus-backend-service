@@ -38,7 +38,7 @@ const utxoSumForAddresses = (db: Pool) => async (addresses: Array<string>) =>
   ]);
 
 // Cached queries
-const txHistoryQuery = (extraFilter = '', limit = 20) => `
+const txHistoryQuery = (extraFilter: string = '') => (limit: number) => `
   SELECT *
   FROM "txs"
   LEFT JOIN (SELECT * from "bestblock" LIMIT 1) f ON true
@@ -68,14 +68,15 @@ const txHistoryQueries = {
  * @param {Array<Address>} addresses
  */
 const transactionsHistoryForAddresses = (db: Pool) => async (
+  limit: number,
   addresses: Array<string>,
   dateFrom: Date,
   txHash: ?string,
 ): Promise<ResultSet> => {
   if (txHash) {
-    return db.query(txHistoryQueries.withTxHash, [addresses, dateFrom, txHash]);
+    return db.query(txHistoryQueries.withTxHash(limit), [addresses, dateFrom, txHash]);
   }
-  return db.query(txHistoryQueries.withoutTxHash, [addresses, dateFrom]);
+  return db.query(txHistoryQueries.withoutTxHash(limit), [addresses, dateFrom]);
 };
 
 /**

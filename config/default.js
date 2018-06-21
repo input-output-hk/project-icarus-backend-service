@@ -4,6 +4,7 @@ module.exports = {
     port: 8080,
     apiConfig: {
       addressesRequestLimit: 50,
+      txHistoryResponseLimit: 20,
     },
   },
 };
