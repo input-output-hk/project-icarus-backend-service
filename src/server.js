@@ -51,9 +51,16 @@ async function createServer() {
   server.use(restify.plugins.bodyParser());
   server.on('after', restifyBunyanLogger());
 
-  // Load routes defined in the server
   Object.values(routes).forEach(({ method, path, handler }: any) => {
-    server[method](path, handler(dbApi(db), serverConfig));
+    server[method](path, async (req, res, next) => {
+      try {
+        const result = await handler(dbApi(db), serverConfig)(req);
+        res.send(result);
+        next();
+      } catch (err) {
+        next(err);
+      }
+    });
   });
 
   const wss = new WebSocket.Server({ server });

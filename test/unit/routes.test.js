@@ -1,9 +1,14 @@
 // @flow
 const assert = require('assert');
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 const sinon = require('sinon');
 const Bunyan = require('bunyan');
 const routes = require('../../src/routes');
 const packageJson = require('../../package.json');
+
+chai.use(chaiAsPromised);
+const { expect } = chai;
 
 // eslint-disable-next-line new-cap
 const logger = new Bunyan.createLogger({
@@ -13,29 +18,20 @@ const logger = new Bunyan.createLogger({
 });
 
 describe('Routes', () => {
-  const sendStub = sinon.fake();
-  const nextStub = sinon.fake();
   // This returns fake data. It's ok if they are not real objects (for example utxo or txs)
   // as we are checking the response is being returned, not the queries
   const dbApi = {
-    filterUsedAddresses: sinon.fake.returns({ rows: [['a1', 'a2']] }),
-    unspentAddresses: sinon.fake.returns({ rows: [['a1', 'a2']] }),
-    utxoForAddresses: sinon.fake.returns({ rows: ['utxo1', 'utxo2'] }),
-    utxoSumForAddresses: sinon.fake.returns({ rows: [10, 20] }),
-    transactionsHistoryForAddresses: sinon.fake.returns({
+    filterUsedAddresses: sinon.fake.resolves({ rows: [['a1', 'a2']] }),
+    utxoForAddresses: sinon.fake.resolves({ rows: ['utxo1', 'utxo2'] }),
+    utxoSumForAddresses: sinon.fake.resolves({ rows: [10, 20] }),
+    transactionsHistoryForAddresses: sinon.fake.resolves({
       rows: ['tx1', 'tx2'],
     }),
-    pendingTransactionsForAddresses: sinon.fake.returns({
+    pendingTransactionsForAddresses: sinon.fake.resolves({
       rows: ['ptx1', 'ptx2'],
     }),
+    unspentAddresses: sinon.fake.resolves([]),
   };
-
-  function calledWithError(spy, message) {
-    sinon.assert.calledWith(
-      spy,
-      sinon.match.instanceOf(Error).and(sinon.match.has('message', message)),
-    );
-  }
 
   function validateMethodAndPath(endpoint, methodToCheck, pathToCheck) {
     const { method, path } = endpoint;
@@ -44,26 +40,24 @@ describe('Routes', () => {
   }
 
   function assertInvalidAddressesPayload(handler) {
-    it('should reject bodies without addresses', () => {
-      const send = sinon.fake();
-      const next = sinon.fake();
+    it('should reject bodies without addresses', async () => {
       // $FlowFixMe Ignore this as we are trying invalid payloads
-      handler({}, { send }, next);
-      assert.equal(send.called, false);
-      calledWithError(next, 'Addresses request length should be (0, 20]');
+      const response = handler({});
+      expect(response).to.be.rejectedWith(
+        Error,
+        'Addresses request length should be (0, 20]',
+      );
     });
 
     it('should reject bodies with more than 20 addresses', () => {
-      const send = sinon.fake();
-      const next = sinon.fake();
-      handler(
+      const response = handler(
         // $FlowFixMe Ignore this as we are trying invalid payloads
         { body: { addresses: Array(21).fill('an_address') } },
-        { send },
-        next,
       );
-      assert.equal(send.called, false);
-      calledWithError(next, 'Addresses request length should be (0, 20]');
+      expect(response).to.be.rejectedWith(
+        Error,
+        'Addresses request length should be (0, 20]',
+      );
     });
   }
 
@@ -72,12 +66,10 @@ describe('Routes', () => {
       validateMethodAndPath(routes.healthCheck, 'get', '/api/healthcheck');
     });
 
-    it('should return package.json version as response', () => {
+    it('should return package.json version as response', async () => {
       const handler = routes.healthCheck.handler();
-      handler({}, { send: sendStub }, nextStub);
-
-      assert(nextStub.calledOnce);
-      assert(sendStub.calledWith({ version: packageJson.version }));
+      const response = await handler();
+      expect(response).to.eql({ version: packageJson.version });
     });
   });
 
@@ -96,15 +88,10 @@ describe('Routes', () => {
 
     it('should accept bodies with 20 addresses', async () => {
       const handler = routes.filterUsedAddresses.handler(dbApi, { logger });
-      const send = sinon.fake();
-      const next = sinon.fake.resolves(true);
-      await handler(
-        { body: { addresses: Array(20).fill('an_address') } },
-        { send },
-        next,
-      );
-      sinon.assert.calledWith(send, ['a1', 'a2']);
-      assert.equal(next.called, true);
+      const response = await handler({
+        body: { addresses: Array(20).fill('an_address') },
+      });
+      expect(response).to.eql(['a1', 'a2']);
     });
   });
 
@@ -123,15 +110,10 @@ describe('Routes', () => {
 
     it('should accept bodies with 20 addresses', async () => {
       const handler = routes.utxoForAddresses.handler(dbApi, { logger });
-      const send = sinon.fake();
-      const next = sinon.fake.resolves(true);
-      await handler(
-        { body: { addresses: Array(20).fill('an_address') } },
-        { send },
-        next,
-      );
-      sinon.assert.calledWith(send, ['utxo1', 'utxo2']);
-      assert.equal(next.called, true);
+      const response = await handler({
+        body: { addresses: Array(20).fill('an_address') },
+      });
+      expect(response).to.eql(['utxo1', 'utxo2']);
     });
   });
 
@@ -150,15 +132,10 @@ describe('Routes', () => {
 
     it('should accept bodies with 20 addresses', async () => {
       const handler = routes.utxoSumForAddresses.handler(dbApi, { logger });
-      const send = sinon.fake();
-      const next = sinon.fake.resolves(true);
-      await handler(
-        { body: { addresses: Array(20).fill('an_address') } },
-        { send },
-        next,
-      );
-      sinon.assert.calledWith(send, 10);
-      assert.equal(next.called, true);
+      const response = await handler({
+        body: { addresses: Array(20).fill('an_address') },
+      });
+      expect(response).to.equal(10);
     });
   });
 
@@ -177,60 +154,42 @@ describe('Routes', () => {
 
     it('should fail if no dateFrom sent', async () => {
       const handler = routes.transactionsHistory.handler(dbApi, { logger });
-      const send = sinon.fake();
-      const next = sinon.fake.resolves(true);
-      await handler(
-        {
-          body: {
-            addresses: ['an_address'],
-            // $FlowFixMe ignore this line as we are testing invalid dateFrom
-            dateFrom: undefined,
-            txHash: 'a_hash',
-          },
+      const response = handler({
+        body: {
+          addresses: ['an_address'],
+          // $FlowFixMe ignore this line as we are testing invalid dateFrom
+          dateFrom: undefined,
+          txHash: 'a_hash',
         },
-        { send },
-        next,
+      });
+      expect(response).to.be.rejectedWith(
+        Error,
+        'DateFrom should be a valid datetime',
       );
-      assert.equal(send.called, false);
-      calledWithError(next, 'DateFrom should be a valid datetime');
     });
 
     it('should accept valid bodies with txHash', async () => {
       const handler = routes.transactionsHistory.handler(dbApi, { logger });
-      const send = sinon.fake();
-      const next = sinon.fake.resolves(true);
-      await handler(
-        {
-          body: {
-            addresses: Array(20).fill('an_address'),
-            dateFrom: new Date(),
-            txHash: 'aHash',
-          },
+      const response = await handler({
+        body: {
+          addresses: Array(20).fill('an_address'),
+          dateFrom: new Date(),
+          txHash: 'aHash',
         },
-        { send },
-        next,
-      );
-      sinon.assert.calledWith(send, ['tx1', 'tx2']);
-      assert.equal(next.called, true);
+      });
+      expect(response).to.eql(['tx1', 'tx2']);
     });
 
     it('should accept valid bodies without txHash', async () => {
       const handler = routes.transactionsHistory.handler(dbApi, { logger });
-      const send = sinon.fake();
-      const next = sinon.fake.resolves(true);
-      await handler(
-        {
-          body: {
-            addresses: Array(20).fill('an_address'),
-            dateFrom: new Date(),
-            txHash: undefined,
-          },
+      const response = await handler({
+        body: {
+          addresses: Array(20).fill('an_address'),
+          dateFrom: new Date(),
+          txHash: undefined,
         },
-        { send },
-        next,
-      );
-      sinon.assert.calledWith(send, ['tx1', 'tx2']);
-      assert.equal(next.called, true);
+      });
+      expect(response).to.eql(['tx1', 'tx2']);
     });
   });
 
@@ -249,19 +208,12 @@ describe('Routes', () => {
 
     it('should accept bodies with 20 addresses', async () => {
       const handler = routes.pendingTransactions.handler(dbApi, { logger });
-      const send = sinon.fake();
-      const next = sinon.fake.resolves(true);
-      await handler(
-        {
-          body: {
-            addresses: Array(20).fill('an_address'),
-          },
+      const response = await handler({
+        body: {
+          addresses: Array(20).fill('an_address'),
         },
-        { send },
-        next,
-      );
-      sinon.assert.calledWith(send, ['ptx1', 'ptx2']);
-      assert.equal(next.called, true);
+      });
+      expect(response).to.eql(['ptx1', 'ptx2']);
     });
   });
 
@@ -279,11 +231,12 @@ describe('Routes', () => {
         logger,
         importerSendTxEndpoint: 'fake',
       });
-      const send = sinon.fake();
-      const next = sinon.fake.resolves(true);
       // $FlowFixMe Ignore this error as we are testing invalid payload
-      await handler({ body: { signedTx: undefined } }, { send }, next);
-      calledWithError(next, 'Error trying to send transaction');
+      const request = handler({ body: { signedTx: undefined } });
+      expect(request).to.be.rejectedWith(
+        Error,
+        'Error trying to send transaction',
+      );
     });
   });
 });
