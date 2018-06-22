@@ -1,5 +1,6 @@
 import type { Logger } from 'bunyan';
 import type { ResultSet } from 'pg';
+import type { AxiosPromise } from 'axios';
 
 declare module 'icarus-backend' {
   declare type ServerConfig = {
@@ -31,9 +32,11 @@ declare module 'icarus-backend' {
   };
 
   declare type SignedTxRequest = {
-    body: {
-      signedTx: string,
-    },
+    body: SignedTx
+  };
+
+  declare type SignedTx = {
+    signedTx: string,
   };
 
   declare type DbApi = {
@@ -49,4 +52,13 @@ declare module 'icarus-backend' {
     ) => Promise<ResultSet>,
     pendingTransactionsForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
   };
+
+  declare type ImporterApi = {
+    sendTx: (tx: SignedTx) => AxiosPromise<ImporterResponse>
+  };
+
+  declare type ImporterResponse = {
+    status: number,
+    data: any
+  }
 }
