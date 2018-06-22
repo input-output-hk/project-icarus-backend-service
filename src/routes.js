@@ -2,7 +2,7 @@
 
 import type { Logger } from 'bunyan';
 import type {
-  LoggerObject,
+  ServerConfig,
   Request,
   TxHistoryRequest,
   SignedTxRequest,
@@ -20,9 +20,9 @@ const withPrefix = route => `/api${route}`;
  * This method validates addresses request body
  * @param {Array[String]} addresses
  */
-function validateAddressesReq({ addresses } = {}) {
-  if (!addresses || addresses.length > 20 || addresses.length === 0) {
-    throw new Error('Addresses request length should be (0, 20]');
+function validateAddressesReq(addressRequestLimit: number, { addresses } = {}) {
+  if (!addresses || addresses.length > addressRequestLimit || addresses.length === 0) {
+    throw new Error(`Addresses request length should be (0, ${addressRequestLimit}]`);
   }
   // TODO: Add address validation
   return true;
@@ -57,10 +57,10 @@ function validateSignedTransactionReq({ signedTx } = {}) {
  * @param {*} db Database
  * @param {*} Server Server Config object
  */
-const utxoForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
+const utxoForAddresses = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) => async (
   req: Request,
 ) => {
-  validateAddressesReq(req.body);
+  validateAddressesReq(apiConfig.addressesRequestLimit, req.body);
   logger.debug('[utxoForAddresses] request is valid');
   const result = await dbApi.utxoForAddresses(req.body.addresses);
   logger.debug('[utxoForAddresses] result calculated');
@@ -73,10 +73,10 @@ const utxoForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const filterUsedAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
+const filterUsedAddresses = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) => async (
   req: Request,
 ) => {
-  validateAddressesReq(req.body);
+  validateAddressesReq(apiConfig.addressesRequestLimit, req.body);
   logger.debug('[filterUsedAddresses] request is valid');
   const result = await dbApi.filterUsedAddresses(req.body.addresses);
   logger.debug('[filterUsedAddresses] result calculated');
@@ -88,10 +88,10 @@ const filterUsedAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
  * @param {*} db Database
  * @param {*} Server Server Config Object
  */
-const utxoSumForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
+const utxoSumForAddresses = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) => async (
   req: Request,
 ) => {
-  validateAddressesReq(req.body);
+  validateAddressesReq(apiConfig.addressesRequestLimit, req.body);
   logger.debug('[utxoSumForAddresses] request is valid');
   const result = await dbApi.utxoSumForAddresses(req.body.addresses);
   logger.debug('[utxoSumForAddresses] result calculated');
@@ -103,13 +103,14 @@ const utxoSumForAddresses = (dbApi: DbApi, { logger }: LoggerObject) => async (
  * @param {*} db Database
  * @param {*} Server Config Object
  */
-const transactionsHistory = (dbApi: DbApi, { logger }: LoggerObject) => async (
+const transactionsHistory = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) => async (
   req: TxHistoryRequest,
 ) => {
-  validateAddressesReq(req.body);
+  validateAddressesReq(apiConfig.addressesRequestLimit, req.body);
   validateDatetimeReq(req.body);
   logger.debug('[transactionsHistory] request is valid');
   const result = await dbApi.transactionsHistoryForAddresses(
+    apiConfig.txHistoryResponseLimit,
     req.body.addresses,
     moment(req.body.dateFrom).toDate(),
     req.body.txHash,
@@ -123,10 +124,10 @@ const transactionsHistory = (dbApi: DbApi, { logger }: LoggerObject) => async (
  * @param {*} db Database
  * @param {*} Server Config Object
  */
-const pendingTransactions = (dbApi: DbApi, { logger }: LoggerObject) => async (
+const pendingTransactions = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) => async (
   req: Request,
 ) => {
-  validateAddressesReq(req.body);
+  validateAddressesReq(apiConfig.addressesRequestLimit, req.body);
   logger.debug('[pendingTransactions] request is valid');
   const result = await dbApi.pendingTransactionsForAddresses(
     req.body.addresses,

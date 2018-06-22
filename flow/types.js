@@ -2,8 +2,14 @@ import type { Logger } from 'bunyan';
 import type { ResultSet } from 'pg';
 
 declare module 'icarus-backend' {
-  declare type LoggerObject = {
+  declare type ServerConfig = {
     logger: Logger,
+    apiConfig: ApiConfig
+  };
+
+  declare type ApiConfig = {
+    addressesRequestLimit: number,
+    txHistoryResponseLimit: number,
   };
 
   declare type Request = {
@@ -36,6 +42,7 @@ declare module 'icarus-backend' {
     utxoForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
     utxoSumForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
     transactionsHistoryForAddresses: (
+      limit: number,
       addresses: Array<string>,
       dateFrom: Date,
       txHash: ?string,
