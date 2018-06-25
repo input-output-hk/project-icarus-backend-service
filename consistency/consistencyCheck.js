@@ -18,5 +18,6 @@ createDB(config.get('db')).then((db) => {
   const constApiWithDb = constApi(db);
   const properties = constProp(constApiWithDb);
   
-  properties.txAddrConsistentProp().then((test) => console.log(test));
+//  properties.txAddrConsistentProp().then((test) => console.log(test));
+  properties.txsConsistentProp().then((test) => console.log(test));
 });

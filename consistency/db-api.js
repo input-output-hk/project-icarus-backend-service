@@ -17,7 +17,15 @@ const numberRowsInconsistentTxAddr = (db: Pool) => async (): Promise<ResultSet> 
           using (tx_hash, address)
         WHERE calcTxAddr.tx_hash IS NULL OR tx_addresses.tx_hash IS NULL`);
 
+const getTxByHash = (db: Pool) => async (hash): Promise<ResultSet> =>
+  db.query({
+    text: 'SELECT * FROM "txs" WHERE "txs".hash=$1',
+    values: [hash],
+    rowMode: 'array',
+  });
+
 module.exports = (db: Pool) => ({
   simpleTest: simpleTest(db),
   numberRowsInconsistentTxAddr: numberRowsInconsistentTxAddr(db),
+  getTxByHash: getTxByHash(db),
 });
