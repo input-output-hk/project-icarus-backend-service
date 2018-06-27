@@ -1,4 +1,7 @@
 {
+  "server": {
+    "importerSendTxEndpoint": "IMPORTER_SEND_ENDPOINT"
+  },
   "db": {
     "user": "DB_USER",
     "host": "DB_HOST",
