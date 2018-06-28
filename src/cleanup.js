@@ -1,17 +1,19 @@
-const exitHandler = (db, logger) => options => () => {
+// @flow
+
+import type { Pool } from 'pg';
+import type { Logger } from 'bunyan';
+
+const exitHandler = (db: Pool, logger: Logger) => options => () => {
   if (!db.ending) {
     logger.info('Cleaning the APP');
-    db
-      .end()
-      .then(() => {
-        logger.info('DB Pool released!');
-        if (options.exit) process.exit();
-      })
-      .catch(err => logger.error(err));
+    db.end().then(() => {
+      logger.info('DB Pool released!');
+      if (options.exit) process.exit();
+    }).catch(err => logger.error(err));
   } else if (options.exit) process.exit();
 };
 
-function config(db, logger) {
+function config(db: Pool, logger: Logger) {
   const onExit = options => exitHandler(db, logger)(options);
 
   // do something when app is closing

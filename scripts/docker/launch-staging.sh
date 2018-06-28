@@ -17,4 +17,4 @@ docker run -d -e DB_USER=$DB_USER \
   -e DB_PORT=$DB_PORT \
   -e NODE_ENV=staging \
   --name $NAME \
-  -p 8080:8080 icarus/$NAME:$TAG
+  -p 443:443 icarus/$NAME:$TAG

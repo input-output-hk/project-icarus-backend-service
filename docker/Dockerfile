@@ -9,9 +9,10 @@ RUN apk add --update bash bash-doc util-linux pciutils usbutils coreutils binuti
 WORKDIR /usr/app
 COPY ./ /usr/app
 
-RUN cd /usr/app \
-			 && npm install --production
+# Install dev dependencies to remove flow types and process files but after that
+# only preserve production ones
+RUN cd /usr/app && npm install && npm run flow-remove-types &&  npm prune --production
 
 WORKDIR /usr/app
 
-CMD ["pm2", "start", "./src/index.js", "-i", "0", "--no-daemon"]
+CMD ["pm2", "start", "./flow-files/index.js", "-i", "0", "--no-daemon"]
