@@ -4,21 +4,18 @@ const { consoleLogger } = require('../src/logger');
 module.exports = {
   server: {
     corsEnabledFor: ['*'],
-    logger: raw(consoleLogger('debug')),
-    https: {
-      tlsDir: './tls-files',
-    },
+    logger: raw(consoleLogger('fatal')),
     importerSendTxEndpoint: 'https://localhost:8200/api/txs/signed',
   },
   db: {
-    user: 'postgres',
+    user: 'root',
     host: 'localhost',
-    database: 'icaruspocbackendservice',
-    password: 'mysecretpassword',
+    database: 'icaruspocbackendservice-test',
+    password: '',
     port: 5432,
     min: 4,
     max: 20,
     idleTimeoutMillis: 1000,
-    connectionTimeoutMillis: 5000,
+    connectionTimeoutMillis: 1000,
   },
 };
