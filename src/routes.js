@@ -7,9 +7,9 @@ import type {
   TxHistoryRequest,
   SignedTxRequest,
   DbApi,
-  ImporterApi,
 } from 'icarus-backend'; // eslint-disable-line
 
+const axios = require('axios');
 const moment = require('moment');
 const { version } = require('../package.json');
 const errs = require('restify-errors');
@@ -145,40 +145,39 @@ const signedTransaction = (
   dbApi: DbApi,
   {
     logger,
-  }: { logger: Logger },
-  importerApi: ImporterApi,
+    importerSendTxEndpoint,
+  }: { logger: Logger, importerSendTxEndpoint: string },
 ) => async (req: SignedTxRequest) => {
-  validateSignedTransactionReq(req.body);
-  logger.debug('[signedTransaction] request start');
-  let response;
   try {
-    response = await importerApi.sendTx(req.body);
-  } catch (err) {
-    logger.debug('[signedTransaction] Error trying to connect with importer');
-    throw new Error('Error trying to connect with importer');
-  }
-  logger.debug('[signedTransaction] transaction sent to backend, response:', response);
-  if (response.status === 200) {
-    const parsedBody = response.data;
-    if (parsedBody.Right) {
-      // "Right" means 200 ok (success) -> also handle if Right: false (boolean response)
-      return parsedBody.Right;
-    } else if (parsedBody.Left) {
-      // "Left" means error case -> return error with contents (exception on nextUpdate)
-      logger.debug('[signedTransaction] Error processing transaction');
-      throw new errs.InvalidContentError(
-        'Error processing transaction',
-        parsedBody.Left.contents,
-      );
+    validateSignedTransactionReq(req.body);
+    logger.debug('[signedTransaction] request start');
+    const response = await axios.post(importerSendTxEndpoint, req.body);
+    logger.debug('[signedTransaction] transaction sent to backend, response:', response);
+    if (response.status === 200) {
+      const parsedBody = response.data;
+      if (parsedBody.Right) {
+        // "Right" means 200 ok (success) -> also handle if Right: false (boolean response)
+        return parsedBody.Right;
+      } else if (parsedBody.Left) {
+        // "Left" means error case -> return error with contents (exception on nextUpdate)
+        logger.debug('[signedTransaction] Error trying to send transaction');
+        throw new errs.InvalidContentError(
+          'Error trying to send transaction',
+          parsedBody.Left.contents,
+        );
+      }
+      logger.debug('[signedTransaction] Unknown response from backend');
+      throw new Error('Unknown response from backend.');
     }
-    logger.debug('[signedTransaction] Unknown response from backend');
-    throw new Error('Unknown response from backend.');
+    logger.error(
+      '[signedTransaction] Error while doing request to backend',
+      response,
+    );
+    throw new Error(`Error trying to send transaction ${response.data}`);
+  } catch (err) {
+    logger.error('[signedTransaction] Error', err);
+    throw new Error('Error trying to send transaction');
   }
-  logger.error(
-    '[signedTransaction] Error while doing request to backend',
-    response,
-  );
-  throw new Error(`Error trying to send transaction ${response.data}`);
 };
 
 /**

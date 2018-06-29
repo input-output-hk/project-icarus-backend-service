@@ -256,47 +256,15 @@ describe('Routes', () => {
     });
 
     it('should reject empty bodies', async () => {
-      const importerApi = {
-        sendTx: sinon.fake.resolves(),
-      };
       const handler = routes.signedTransaction.handler(dbApi, {
         logger,
-      }, importerApi);
+        importerSendTxEndpoint: 'fake',
+      });
       // $FlowFixMe Ignore this error as we are testing invalid payload
       const request = handler({ body: { signedTx: undefined } });
       return expect(request).to.be.rejectedWith(
         Error,
-        'Signed transaction missing',
-      );
-    });
-
-    it('should reject on importer error', async () => {
-      const importerApi = {
-        sendTx: sinon.fake.rejects(),
-      };
-      const handler = routes.signedTransaction.handler(dbApi, {
-        logger,
-      }, importerApi);
-      // $FlowFixMe Ignore this error as we are testing invalid payload
-      const request = handler({ body: { signedTx: 'fakeSignedTx' } });
-      return expect(request).to.be.rejectedWith(
-        Error,
-        'Error trying to connect with importer',
-      );
-    });
-
-    it('should reject on invalid transaction', async () => {
-      const importerApi = {
-        sendTx: sinon.fake.resolves({ status: 200, data: { Left: {} } }),
-      };
-      const handler = routes.signedTransaction.handler(dbApi, {
-        logger,
-      }, importerApi);
-      // $FlowFixMe Ignore this error as we are testing invalid payload
-      const request = handler({ body: { signedTx: 'fakeSignedTx' } });
-      return expect(request).to.be.rejectedWith(
-        Error,
-        'Error processing transaction',
+        'Error trying to send transaction',
       );
     });
   });

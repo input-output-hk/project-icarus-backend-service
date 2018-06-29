@@ -12,12 +12,11 @@ const config = require('config');
 const routes = require('./routes');
 const createDB = require('./db');
 const dbApi = require('./db-api');
-const importerApi = require('./importer-api');
 const configCleanup = require('./cleanup');
 const manageConnections = require('./ws-connections');
 
 const serverConfig = config.get('server');
-const { logger, importerSendTxEndpoint } = serverConfig;
+const { logger } = serverConfig;
 
 function addHttps(defaultRestifyConfig) {
   const TLS_DIR = pathLib.join(
@@ -55,11 +54,7 @@ async function createServer() {
   Object.values(routes).forEach(({ method, path, handler }: any) => {
     server[method](path, async (req, res, next) => {
       try {
-        const result = await handler(
-          dbApi(db),
-          serverConfig,
-          importerApi(importerSendTxEndpoint),
-        )(req);
+        const result = await handler(dbApi(db), serverConfig)(req);
         res.send(result);
         next();
       } catch (err) {
