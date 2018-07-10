@@ -155,7 +155,7 @@ const signedTransaction = (
     response = await importerApi.sendTx(req.body);
   } catch (err) {
     logger.debug('[signedTransaction] Error trying to connect with importer');
-    throw new Error('Error trying to connect with importer');
+    throw new errs.InternalError('Error trying to connect with importer', err);
   }
   logger.debug('[signedTransaction] transaction sent to backend, response:', response);
   if (response.status === 200) {
@@ -164,15 +164,24 @@ const signedTransaction = (
       // "Right" means 200 ok (success) -> also handle if Right: false (boolean response)
       return parsedBody.Right;
     } else if (parsedBody.Left) {
-      // "Left" means error case -> return error with contents (exception on nextUpdate)
+      // "Left" means error case
+      if (typeof parsedBody.Left === 'string' && (
+        parsedBody.Left.indexOf('witness doesn\'t match address') !== -1 ||
+        parsedBody.Left.indexOf('witness doesn\'t pass verification') !== -1)) {
+        logger.debug('[signedTransaction] Invalid witness');
+        throw new errs.InvalidContentError(
+          'Invalid witness',
+          parsedBody.Left,
+        );
+      }
       logger.debug('[signedTransaction] Error processing transaction');
       throw new errs.InvalidContentError(
         'Error processing transaction',
-        parsedBody.Left.contents,
+        parsedBody.Left,
       );
     }
     logger.debug('[signedTransaction] Unknown response from backend');
-    throw new Error('Unknown response from backend.');
+    throw new errs.InternalServerError('Unknown response from backend.', parsedBody);
   }
   logger.error(
     '[signedTransaction] Error while doing request to backend',
