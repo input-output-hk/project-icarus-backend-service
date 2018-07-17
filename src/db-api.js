@@ -38,7 +38,7 @@ const utxoSumForAddresses = (db: Pool) => async (addresses: Array<string>) =>
   ]);
 
 // Cached queries
-const txHistoryQuery = (extraFilter: string = '') => (limit: number) => `
+const txHistoryQuery = (limit: number) => `
   SELECT *
   FROM "txs"
   LEFT JOIN (SELECT * from "bestblock" LIMIT 1) f ON true
@@ -48,17 +48,10 @@ const txHistoryQuery = (extraFilter: string = '') => (limit: number) => `
       FROM "tx_addresses"
       where address = ANY ($1)
     )
-    AND 
-      time >= $2
-    ${extraFilter}   
-  ORDER BY time ASC, hash ASC
+    AND last_update >= $2
+  ORDER BY last_update ASC
   LIMIT ${limit}
 `;
-
-const txHistoryQueries = {
-  withTxHash: txHistoryQuery('AND hash > $3'),
-  withoutTxHash: txHistoryQuery(),
-};
 
 /**
  * Queries DB looking for transactions including (either inputs or outputs)
@@ -71,31 +64,7 @@ const transactionsHistoryForAddresses = (db: Pool) => async (
   limit: number,
   addresses: Array<string>,
   dateFrom: Date,
-  txHash: ?string,
-): Promise<ResultSet> => {
-  if (txHash) {
-    return db.query(txHistoryQueries.withTxHash(limit), [addresses, dateFrom, txHash]);
-  }
-  return db.query(txHistoryQueries.withoutTxHash(limit), [addresses, dateFrom]);
-};
-
-/**
- * Queries DB looking for pending transactions including (either inputs or outputs)
- * for the given addresses
- *
- * @param {Db Object} db
- * @param {Array<Address>} addresses
- */
-const pendingTransactionsForAddresses = (db: Pool) => async (
-  addresses: Array<string>,
-): Promise<ResultSet> =>
-  db.query(`
-    SELECT * FROM pending_txs
-    WHERE hash = ANY (
-        SELECT tx_hash FROM ptx_addresses
-        WHERE address = ANY($1)
-      )
-    ORDER BY created_time ASC`, [addresses]);
+): Promise<ResultSet> => db.query(txHistoryQuery(limit), [addresses, dateFrom]);
 
 module.exports = (db: Pool): DbApi => ({
   filterUsedAddresses: filterUsedAddresses(db),
@@ -103,5 +72,4 @@ module.exports = (db: Pool): DbApi => ({
   utxoForAddresses: utxoForAddresses(db),
   utxoSumForAddresses: utxoSumForAddresses(db),
   transactionsHistoryForAddresses: transactionsHistoryForAddresses(db),
-  pendingTransactionsForAddresses: pendingTransactionsForAddresses(db),
 });

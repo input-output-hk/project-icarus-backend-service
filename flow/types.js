@@ -27,7 +27,6 @@ declare module 'icarus-backend' {
     body: {
       addresses: Array<string>,
       dateFrom: Date,
-      txHash: ?string,
     },
   };
 
@@ -50,7 +49,6 @@ declare module 'icarus-backend' {
       dateFrom: Date,
       txHash: ?string,
     ) => Promise<ResultSet>,
-    pendingTransactionsForAddresses: (addresses: Array<string>) => Promise<ResultSet>,
   };
 
   declare type ImporterApi = {
