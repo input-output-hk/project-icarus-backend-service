@@ -165,9 +165,8 @@ const signedTransaction = (
       return parsedBody.Right;
     } else if (parsedBody.Left) {
       // "Left" means error case
-      if (typeof parsedBody.Left === 'string' && (
-        parsedBody.Left.indexOf('witness doesn\'t match address') !== -1 ||
-        parsedBody.Left.indexOf('witness doesn\'t pass verification') !== -1)) {
+      if (parsedBody.Left.includes('witness doesn\'t match address') ||
+        parsedBody.Left.includes('witness doesn\'t pass verification')) {
         logger.debug('[signedTransaction] Invalid witness');
         throw new errs.InvalidContentError(
           'Invalid witness',

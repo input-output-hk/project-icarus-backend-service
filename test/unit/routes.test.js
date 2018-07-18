@@ -287,7 +287,7 @@ describe('Routes', () => {
 
     it('should reject on invalid transaction', async () => {
       const importerApi = {
-        sendTx: sinon.fake.resolves({ status: 200, data: { Left: {} } }),
+        sendTx: sinon.fake.resolves({ status: 200, data: { Left: 'Error' } }),
       };
       const handler = routes.signedTransaction.handler(dbApi, {
         logger,
@@ -297,6 +297,24 @@ describe('Routes', () => {
       return expect(request).to.be.rejectedWith(
         Error,
         'Error processing transaction',
+      );
+    });
+
+    it('should reject on invalid witness', async () => {
+      const invalidWitnessError = 'Tx not broadcasted 3cb8547f391537ba: input #0\'s witness'
+        + ' doesn\'t pass verification:\n  witness: PkWitness: key = pub:0ff1c324, key'
+        + ' hash = 04666a4a, sig = <signature>\n  reason: the signature in the witness doesn\'t'
+        + ' pass validation';
+      const importerApi = {
+        sendTx: sinon.fake.resolves({ status: 200, data: { Left: invalidWitnessError } }),
+      };
+      const handler = routes.signedTransaction.handler(dbApi, {
+        logger,
+      }, importerApi);
+      const request = handler({ body: { signedTx: 'fakeSignedTx' } });
+      return expect(request).to.be.rejectedWith(
+        Error,
+        'Invalid witness',
       );
     });
   });
