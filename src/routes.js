@@ -113,26 +113,8 @@ const transactionsHistory = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) 
     apiConfig.txHistoryResponseLimit,
     req.body.addresses,
     moment(req.body.dateFrom).toDate(),
-    req.body.txHash,
   );
   logger.debug('[transactionsHistory] result calculated');
-  return result.rows;
-};
-
-/**
- *
- * @param {*} db Database
- * @param {*} Server Config Object
- */
-const pendingTransactions = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) => async (
-  req: Request,
-) => {
-  validateAddressesReq(apiConfig.addressesRequestLimit, req.body);
-  logger.debug('[pendingTransactions] request is valid');
-  const result = await dbApi.pendingTransactionsForAddresses(
-    req.body.addresses,
-  );
-  logger.debug('[pendingTransactions] result calculated');
   return result.rows;
 };
 
@@ -215,11 +197,6 @@ module.exports = {
     method: 'post',
     path: withPrefix('/txs/history'),
     handler: transactionsHistory,
-  },
-  pendingTransactions: {
-    method: 'post',
-    path: withPrefix('/txs/pending'),
-    handler: pendingTransactions,
   },
   signedTransaction: {
     method: 'post',

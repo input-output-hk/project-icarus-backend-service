@@ -29,9 +29,6 @@ describe('Routes', () => {
     transactionsHistoryForAddresses: sinon.fake.resolves({
       rows: ['tx1', 'tx2'],
     }),
-    pendingTransactionsForAddresses: sinon.fake.resolves({
-      rows: ['ptx1', 'ptx2'],
-    }),
     unspentAddresses: sinon.fake.resolves([]),
   };
 
@@ -179,70 +176,12 @@ describe('Routes', () => {
           addresses: ['an_address'],
           // $FlowFixMe ignore this line as we are testing invalid dateFrom
           dateFrom: undefined,
-          txHash: 'a_hash',
         },
       });
       return expect(response).to.be.rejectedWith(
         Error,
         'DateFrom should be a valid datetime',
       );
-    });
-
-    it('should accept valid bodies with txHash', async () => {
-      const handler = routes.transactionsHistory.handler(dbApi, {
-        logger,
-        apiConfig,
-      });
-      const response = await handler({
-        body: {
-          addresses: Array(20).fill('an_address'),
-          dateFrom: new Date(),
-          txHash: 'aHash',
-        },
-      });
-      return expect(response).to.eql(['tx1', 'tx2']);
-    });
-
-    it('should accept valid bodies without txHash', async () => {
-      const handler = routes.transactionsHistory.handler(dbApi, {
-        logger,
-        apiConfig,
-      });
-      const response = await handler({
-        body: {
-          addresses: Array(20).fill('an_address'),
-          dateFrom: new Date(),
-          txHash: undefined,
-        },
-      });
-      return expect(response).to.eql(['tx1', 'tx2']);
-    });
-  });
-
-  describe('Pending transactions', () => {
-    it('should have POST as method and /txs/pending as path', () => {
-      validateMethodAndPath(
-        routes.pendingTransactions,
-        'post',
-        '/api/txs/pending',
-      );
-    });
-
-    assertInvalidAddressesPayload(
-      routes.pendingTransactions.handler(dbApi, { logger, apiConfig }),
-    );
-
-    it('should accept bodies with 20 addresses', async () => {
-      const handler = routes.pendingTransactions.handler(dbApi, {
-        logger,
-        apiConfig,
-      });
-      const response = await handler({
-        body: {
-          addresses: Array(20).fill('an_address'),
-        },
-      });
-      return expect(response).to.eql(['ptx1', 'ptx2']);
     });
   });
 

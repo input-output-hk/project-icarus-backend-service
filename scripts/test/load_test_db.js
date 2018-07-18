@@ -7,13 +7,19 @@ const { host, password, user, database } = config.get('db');
 
 process.env.PGPASSWORD = password;
 
+const runDBCommand = fn => {
+  try {
+    fn();
+  } catch (err) {
+    // do nothing
+  }
+};
+
 try {
   console.log('Creating DB');
-  execFileSync('createdb', [`-U${user}`, `-h${host}`, database]);
+  runDBCommand(() => execFileSync('createdb', [`-U${user}`, `-h${host}`, database]));
   console.log('Loading Data');
-  execSync(
-    'psql -U postgres -h localhost icaruspocbackendservice-test < ./test/integration/test-db.sql',
-  );
+  runDBCommand(() => execSync(`psql -U ${user} -h ${host} ${database} < ./test/integration/test-db.sql`));
 } catch (err) {
   // DB is already present, it's fine
 }
