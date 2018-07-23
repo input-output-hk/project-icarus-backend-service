@@ -194,6 +194,17 @@ describe('Routes', () => {
       );
     });
 
+    it('should send a given signed tx', async () => {
+      const importerApi = {
+        sendTx: sinon.fake.resolves({ status: 200, data: { Right: [] } }),
+      };
+      const handler = routes.signedTransaction.handler(dbApi, {
+        logger,
+      }, importerApi);
+      const response = await handler({ body: { signedTx: 'signedTx' } });
+      return expect(response.length).to.equal(0);
+    });
+
     it('should reject empty bodies', async () => {
       const importerApi = {
         sendTx: sinon.fake.resolves(),
