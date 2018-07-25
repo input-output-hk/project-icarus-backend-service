@@ -48,7 +48,7 @@ const txHistoryQuery = (limit: number) => `
       FROM "tx_addresses"
       where address = ANY ($1)
     )
-    AND last_update >= $2
+    AND last_update > $2
   ORDER BY last_update ASC
   LIMIT ${limit}
 `;
