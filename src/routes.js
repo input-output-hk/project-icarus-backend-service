@@ -112,7 +112,7 @@ const transactionsHistory = (dbApi: DbApi, { logger, apiConfig }: ServerConfig) 
   const result = await dbApi.transactionsHistoryForAddresses(
     apiConfig.txHistoryResponseLimit,
     req.body.addresses,
-    moment(req.body.dateFrom).toDate(),
+    req.body.dateFrom,
   );
   logger.debug('[transactionsHistory] result calculated');
   return result.rows;

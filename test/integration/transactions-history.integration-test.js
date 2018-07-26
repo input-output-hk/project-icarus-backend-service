@@ -280,4 +280,51 @@ describe('Transaction History endpoint', () => {
         .end(),
     );
   });
+
+  it('should return history for input and output addresses after given date', async () => {
+    const usedAddresses = [
+      // Input and Output
+      'DdzFFzCqrhsgBCt25t6JArdDHfJZkzzebapE2qqrg1yoquLZzeEyxzhLAb9x7rVf5aby9jwLvL65hH9zTWjbekwzbeYCjJ5pUKn1rYgB',
+      // Output
+      'DdzFFzCqrhsqFM8QxHC4ASk4QLfuoWqbY65GeprG8ezEY6VFkP4jz4C4fcDT57fkUUrPN8E2gaPXiWQxjD3BryptceQEx98ALsrYMoSi',
+    ];
+
+    return runInServer(api =>
+      api
+        .post(ENDPOINT)
+        .send({
+          addresses: usedAddresses,
+          dateFrom: moment('2018-07-13 21:08:55.778082+00').utc(),
+        })
+        .expectBody([
+          {
+            hash: 'de5dbbed46ef5c69f52b3a77ee74585bef07aebcd90383de28348159c697b568',
+            inputs_address: [
+              'DdzFFzCqrhsgBCt25t6JArdDHfJZkzzebapE2qqrg1yoquLZzeEyxzhLAb9x7rVf5aby9jwLvL65hH9zTWjbekwzbeYCjJ5pUKn1rYgB',
+            ],
+            inputs_amount: [
+              '96421943',
+            ],
+            outputs_address: [
+              'DdzFFzCqrhsrDmGpSbh2LBRmStmMyGznXaeBLoDMSKjLfRuf9DWpLMEzbXw9eQcFsSwNX5sunRuxsJnSZFbu8pTe1qLerrWwwiinEzVe',
+              'DdzFFzCqrhstXeWBtWKg1Z189XE5uwwwfbKeUHdacmnD1qMaNqs6Qk3ctZF1frH1wT5PnnJXzLC2fumc9qVWLFp9aMGPEfVzzL6eyKjM',
+              'DdzFFzCqrhstXeWBtWKg1Z189XE5uwwwfbKeUHdacmnD1qMaNqs6Qk3ctZF1frH1wT5PnnJXzLC2fumc9qVWLFp9aMGPEfVzzL6eyKjM',
+              'DdzFFzCqrhstXeWBtWKg1Z189XE5uwwwfbKeUHdacmnD1qMaNqs6Qk3ctZF1frH1wT5PnnJXzLC2fumc9qVWLFp9aMGPEfVzzL6eyKjM',
+            ],
+            outputs_amount: [
+              '96244366',
+              '1',
+              '1',
+              '1',
+            ],
+            block_num: '872089',
+            time: '2018-04-17T04:28:33.000Z',
+            tx_state: 'Successful',
+            last_update: '2018-07-13T21:08:55.794Z',
+            best_block_num: '1266738',
+          },
+        ])
+        .end(),
+    );
+  });
 });
