@@ -1,15 +1,24 @@
 {
   "name": "icarus-poc-backend-service",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Icarus backend service that will allow wallet users to access blockchain data",
   "main": "./src/index.js",
   "scripts": {
-    "dev": "export NODE_ENV=develop && ./node_modules/.bin/nodemon ./src/index.js | ./node_modules/.bin/bunyan",
-    "staging": "export NODE_ENV=staging && ./node_modules/.bin/nodemon ./src/index.js | ./node_modules/.bin/bunyan",
+    "flow": "flow",
+    "flow-remove-types": "flow-remove-types ./src/ -d ./flow-files/ --all --pretty",
+    "dev": "npm run flow-remove-types && export NODE_ENV=develop && nodemon ./flow-files/index.js | bunyan",
+    "staging": "npm run flow-remove-types && export NODE_ENV=staging && nodemon ./flow-files/index.js | bunyan",
     "eslint": "eslint ./src",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "load-test-db": "node ./scripts/test/load_test_db.js",
+    "clean-test-db": "node ./scripts/test/clean_test_db.js",
+    "unit-tests": "export NODE_ENV=test && mocha -r flow-remove-types/register \"test/unit/**/*.js\"",
+    "integration-tests": "npm run load-test-db && export NODE_ENV=test && mocha -r flow-remove-types/register \"test/integration/**/*.js\"",
+    "all-tests": "npm run unit-tests && npm run integration-tests",
+    "coverage": "nyc npm run all-tests",
+    "postintegration-tests": "npm run clean-test-db",
     "build-docker": "./scripts/docker/build-docker.sh",
-    "launch-staging": "./scripts/docker/launch-staging.sh"
+    "launch-staging": "./scripts/docker/launch-staging.sh",
+    "claudia": "flow-remove-types ./src/ -d ./flow-files/ --all --pretty && claudia"
   },
   "repository": {
     "type": "git",
@@ -22,19 +31,37 @@
   },
   "homepage": "https://github.com/input-output-hk/icaraus-poc-backend-service#readme",
   "dependencies": {
+    "@iopipe/iopipe": "1.7.0",
+    "aws-xray-sdk": "1.2.0",
     "axios": "0.18.0",
     "bunyan": "1.8.12",
+    "claudia-api-builder": "4.0.2",
     "config": "1.30.0",
     "moment": "2.22.1",
     "pg": "7.4.1",
     "restify": "7.1.1",
     "restify-bunyan-logger": "2.0.7",
-    "restify-cors-middleware": "1.1.0"
+    "restify-cors-middleware": "1.1.0",
+    "restify-errors": "6.1.0"
   },
   "devDependencies": {
-    "eslint-config-airbnb": "^16.1.0",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.11.0",
-    "nodemon": "1.17.3"
+    "babel-eslint": "8.2.3",
+    "chai": "4.1.2",
+    "chai-as-promised": "7.1.1",
+    "claudia": "5.0.0",
+    "eslint": "4.19.1",
+    "eslint-config-airbnb": "16.1.0",
+    "eslint-config-airbnb-base": "12.1.0",
+    "eslint-plugin-flowtype": "2.48.0",
+    "eslint-plugin-import": "2.11.0",
+    "eslint-plugin-mocha": "5.0.0",
+    "flow-bin": "0.73.0",
+    "flow-remove-types": "1.2.3",
+    "hippie": "0.5.1",
+    "mocha": "5.2.0",
+    "nodemon": "1.17.3",
+    "nyc": "12.0.1",
+    "shuffle-array": "1.0.1",
+    "sinon": "5.0.10"
   }
 }

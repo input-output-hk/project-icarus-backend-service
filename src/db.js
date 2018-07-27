@@ -1,8 +1,7 @@
-const { Pool } = require('pg');
+// @flow
 
-module.exports = async (dbSettings) => {
-  const pool = new Pool(dbSettings);
-  // Test connection
-  await pool.query('SELECT NOW()');
-  return pool;
-};
+import type { PgPoolConfig, Pool } from 'pg';
+
+const PG = require('pg');
+
+module.exports = (dbSettings: PgPoolConfig): Pool => new PG.Pool(dbSettings);
