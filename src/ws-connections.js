@@ -2,7 +2,7 @@
 import type {
   ServerConfig,
   DbApi,
-} from 'icarus-backend'; // eslint-disable-line
+} from 'yoroi-backend'; // eslint-disable-line
 const _ = require('lodash');
 
 const fromMessage: any = JSON.parse;
