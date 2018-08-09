@@ -8,7 +8,7 @@ import type {
   SignedTxRequest,
   DbApi,
   ImporterApi,
-} from 'icarus-backend'; // eslint-disable-line
+} from 'yoroi-backend'; // eslint-disable-line
 
 const moment = require('moment');
 const { version } = require('../package.json');

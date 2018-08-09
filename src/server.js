@@ -1,6 +1,6 @@
 // @flow
 import type { Pool } from 'pg'; // eslint-disable-line
-import type { DbApi } from 'icarus-backend'; // eslint-disable-line
+import type { DbApi } from 'yoroi-backend'; // eslint-disable-line
 
 const fs = require('fs');
 const pathLib = require('path');

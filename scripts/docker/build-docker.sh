@@ -7,4 +7,4 @@ source "$MY_DIR/helper.sh";
 PACKAGE_VERSION=$(readPackageJSON 'version');
 NAME=$(readPackageJSON 'name');
 
-docker build -t "icarus/$NAME:$PACKAGE_VERSION" -f ./docker/Dockerfile .
+docker build -t "yoroi/$NAME:$PACKAGE_VERSION" -f ./docker/Dockerfile .

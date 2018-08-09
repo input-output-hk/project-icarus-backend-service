@@ -10,7 +10,7 @@ module.exports = {
   db: {
     user: 'root',
     host: 'localhost',
-    database: 'icaruspocbackendservice-test',
+    database: 'yoroibackendservice-test',
     password: '',
     port: 5432,
     min: 4,

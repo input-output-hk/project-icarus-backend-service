@@ -1,5 +1,5 @@
 module.exports = {
-  appName: 'icarus-poc-backend-service',
+  appName: 'yoroi-backend-service',
   server: {
     port: 8080,
     apiConfig: {

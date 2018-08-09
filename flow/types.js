@@ -2,7 +2,7 @@ import type { Logger } from 'bunyan';
 import type { ResultSet } from 'pg';
 import type { AxiosPromise } from 'axios';
 
-declare module 'icarus-backend' {
+declare module 'yoroi-backend' {
   declare type ServerConfig = {
     logger: Logger,
     apiConfig: ApiConfig
