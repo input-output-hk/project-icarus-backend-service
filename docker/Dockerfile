@@ -15,4 +15,4 @@ RUN cd /usr/app && npm install && npm run flow-remove-types &&  npm prune --prod
 
 WORKDIR /usr/app
 
-CMD ["pm2", "start", "./flow-files/index.js", "-i", "0", "--no-daemon"]
+CMD ["./docker/wrapper.sh"]
