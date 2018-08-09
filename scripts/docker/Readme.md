@@ -13,7 +13,7 @@ _Note: this is a first version, the process should be improved_
 2.  As docker image tag will be set as the package.json version field, if necessary, bump
     the version number
 3.  In $PROJECT_ROOT folder, run `sudo npm run build-docker`
-4.  A new image in the repository `yoroi/yoroi-poc-backend-service` with tag `version`
+4.  A new image in the repository `yoroi/yoroi-backend-service` with tag `version`
     will be created
 
 **Important: If there is already an image with the same version number, it will overwrite it**

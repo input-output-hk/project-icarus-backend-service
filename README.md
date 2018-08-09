@@ -1,6 +1,6 @@
 # Icaraus-backend-service
 
-[![CircleCI](https://circleci.com/gh/input-output-hk/yoroi-poc-backend-service.svg?style=svg)](https://circleci.com/gh/input-output-hk/yoroi-poc-backend-service)
+[![CircleCI](https://circleci.com/gh/input-output-hk/icarus-poc-backend-service.svg?style=svg)](https://circleci.com/gh/input-output-hk/icarus-poc-backend-service)
 
 Yoroi backend service that will allow wallet users to access blockchain data
 
@@ -28,7 +28,7 @@ And then, to create the db, you need to do:
 
 ```
 docker exec -it postgres psql -U postgres;
-create database yoroipocbackendservice;
+create database yoroibackendservice;
 ```
 
 1.  Clone this repo, `git@github.com:input-output-hk/icaraus-poc-backend-service.git`

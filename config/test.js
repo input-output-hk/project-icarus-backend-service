@@ -10,7 +10,7 @@ module.exports = {
   db: {
     user: 'postgres',
     host: 'localhost',
-    database: 'yoroipocbackendservice-test',
+    database: 'yoroibackendservice-test',
     password: 'mysecretpassword',
     port: 5432,
     min: 4,
