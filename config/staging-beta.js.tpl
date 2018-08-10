@@ -6,7 +6,7 @@ module.exports = {
         corsEnabledFor: ['*'],
         logger: raw(consoleLogger('error')),
         port: 8080,
-        importerSendTxEndpoint: 'http://ENDPOINT_HOST:8200/api/txs/signed',
+        importerSendTxEndpoint: 'IMPORTER_ENDPOINT',
     },
     db: {
         user: 'fake',
