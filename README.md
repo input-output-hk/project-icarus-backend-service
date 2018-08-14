@@ -96,4 +96,4 @@ To run it, execute `npm run coverage`
 
 ## License
 
-[MIT](LICENSE)
+This project is Copyright 2018 IOHK and licensed under the [MIT](LICENSE.md)
