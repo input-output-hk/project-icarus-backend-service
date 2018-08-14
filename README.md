@@ -94,6 +94,6 @@ Istanbul will be used to get test coverage. It will execute both unit and integr
 
 To run it, execute `npm run coverage`
 
-## Production
+## License
 
-TBD
+[MIT](LICENSE)
