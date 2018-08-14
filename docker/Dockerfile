@@ -1,6 +1,6 @@
 FROM mhart/alpine-node:8.9.4
 
-RUN apk add --update bash bash-doc util-linux pciutils usbutils coreutils binutils findutils grep \ 
+RUN apk add --update bash bash-doc util-linux pciutils usbutils coreutils binutils findutils grep python make \ 
     && npm install -g pm2 \
     && pm2 install pm2-logrotate \ 
     && pm2 set pm2-logrotate:max_size 500M \
