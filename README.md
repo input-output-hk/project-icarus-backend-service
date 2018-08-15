@@ -1,4 +1,4 @@
-# Project Icraus Backend Service
+# Project Icarus - Backend Service
 
 [![CircleCI](https://circleci.com/gh/input-output-hk/icarus-poc-backend-service.svg?style=svg)](https://circleci.com/gh/input-output-hk/icarus-poc-backend-service)
 
