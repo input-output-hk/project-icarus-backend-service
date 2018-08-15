@@ -96,4 +96,4 @@ To run it, execute `npm run coverage`
 
 ## License
 
-Licensed under the [Apache License, Version 2.0 MIT](LICENSE.md)
+Licensed under the [Apache License, Version 2.0](LICENSE.md)
