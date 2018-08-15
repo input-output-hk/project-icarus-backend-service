@@ -73,10 +73,10 @@ To run unit tests, you just need to run
 
 Integration tests will:
 
-1- Create a new DB
-2- Preload sample data
-3- Startup the application
-4- Exercise and assert several endpoints
+1. Create a new DB
+2. Preload sample data
+3. Startup the application
+4. Exercise and assert several endpoints
 
 To do so, before running them, you need to be sure a PostgreSQL db instance is accessible from localhost
 using the following config:
