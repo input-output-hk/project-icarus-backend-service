@@ -1,7 +1,7 @@
 module.exports = {
   apps : [{
     name: 'backend-service',
-    script: './flow-files/index.js',
+    script: './build/index.js',
     args: '',
     instances: 1,
     autorestart: true,
@@ -19,15 +19,4 @@ module.exports = {
       NODE_ENV: 'development'
     }
   }],
-
-  deploy : {
-    production : {
-      user : 'ubuntu',
-      host : 'localhost',
-      ref  : 'origin/adalite',
-      repo : 'git@github.com:vacuumlabs/project-icarus-backend-service.git',
-      path : '',
-      'post-deploy' : 'npm install && npm run flow-remove-types && pm2 reload ecosystem.config.js --env production'
-    }
-  }
 };

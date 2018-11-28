@@ -5,20 +5,20 @@
   "main": "./src/index.js",
   "scripts": {
     "flow": "flow",
-    "flow-remove-types": "flow-remove-types ./src/ -d ./flow-files/ --all --pretty",
-    "dev": "npm run flow-remove-types && export NODE_ENV=develop && nodemon ./flow-files/index.js | bunyan",
-    "staging": "npm run flow-remove-types && export NODE_ENV=staging && nodemon ./flow-files/index.js | bunyan",
+    "build": "flow-remove-types ./src/ -d ./build/ --all --pretty",
+    "dev": "yarn flow-remove-types && export NODE_ENV=develop && nodemon ./build/index.js | bunyan",
+    "staging": "yarn flow-remove-types && export NODE_ENV=staging && nodemon ./build/index.js | bunyan",
     "eslint": "eslint ./src",
     "load-test-db": "node ./scripts/test/load_test_db.js",
     "clean-test-db": "node ./scripts/test/clean_test_db.js",
     "unit-tests": "export NODE_ENV=test && mocha -r flow-remove-types/register \"test/unit/**/*.js\"",
     "integration-tests": "npm run load-test-db && export NODE_ENV=test && mocha -r flow-remove-types/register \"test/integration/**/*.js\"",
-    "all-tests": "npm run unit-tests && npm run integration-tests",
-    "coverage": "nyc npm run all-tests",
-    "postintegration-tests": "npm run clean-test-db",
+    "all-tests": "yarn unit-tests && yarn integration-tests",
+    "coverage": "yarn run all-tests",
+    "postintegration-tests": "yarn clean-test-db",
     "build-docker": "./scripts/docker/build-docker.sh",
     "launch-staging": "./scripts/docker/launch-staging.sh",
-    "claudia": "flow-remove-types ./src/ -d ./flow-files/ --all --pretty && claudia"
+    "claudia": "flow-remove-types ./src/ -d ./build/ --all --pretty && claudia"
   },
   "repository": {
     "type": "git",
@@ -61,7 +61,6 @@
     "hippie": "0.5.2",
     "mocha": "5.2.0",
     "nodemon": "1.17.5",
-    "npm": "^6.4.1",
     "nyc": "12.0.1",
     "shuffle-array": "1.0.1",
     "sinon": "5.0.10"

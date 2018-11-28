@@ -57,8 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
-# Flow generated files
-flow-files
+# folder with built js
+build
 
 # Claudia Production config file
 claudia-prod.json
