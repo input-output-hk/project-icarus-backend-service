@@ -66,10 +66,51 @@ const transactionsHistoryForAddresses = (db: Pool) => async (
   dateFrom: Date,
 ): Promise<ResultSet> => db.query(txHistoryQuery(limit), [addresses, dateFrom]);
 
+// The remaining queries should be used only for the purposes of the legacy API!
+
+/**
+ * Queries DB looking for successful transactions associated with the given address
+ * @param {Db Object} db
+ * @param {Address} address
+ */
+const addressSummary = (db: Pool) => async (address: string): Promise<ResultSet> =>
+  db.query({
+    text: 'SELECT * FROM "txs" WHERE hash = ANY (SELECT tx_hash from "tx_addresses" WHERE address = $1) AND tx_state = $2',
+    values: [address, 'Successful'],
+  });
+
+/**
+* Queries TXS table looking for a successful transaction with a given hash
+* @param {Db Object} db
+* @param {*} tx
+*/
+const txSummary = (db: Pool) => async (tx: string): Promise<ResultSet> =>
+  db.query({
+    text: 'SELECT * FROM "txs" WHERE hash = $1 AND tx_state = $2',
+    values: [tx, 'Successful'],
+  });
+
+/**
+ * Queries UTXO table looking for unspents for given addresses and renames the columns
+ * @param {Db Object} db
+ * @param {Array<Address>} addresses
+ */
+const utxoLegacy = (db: Pool) => async (addresses: Array<string>): Promise<ResultSet> =>
+  db.query({
+    text: `SELECT 'CUtxo' AS "tag", tx_hash AS "cuId", tx_index AS "cuOutIndex", receiver AS "cuAddress", amount AS "cuCoins"
+      FROM "utxos"
+      WHERE receiver = ANY($1)`,
+    values: [addresses],
+  });
+
 module.exports = (db: Pool): DbApi => ({
   filterUsedAddresses: filterUsedAddresses(db),
   unspentAddresses: unspentAddresses(db),
   utxoForAddresses: utxoForAddresses(db),
   utxoSumForAddresses: utxoSumForAddresses(db),
   transactionsHistoryForAddresses: transactionsHistoryForAddresses(db),
+  // legacy
+  addressSummary: addressSummary(db),
+  txSummary: txSummary(db),
+  utxoLegacy: utxoLegacy(db),
 });

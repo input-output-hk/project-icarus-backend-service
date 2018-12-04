@@ -67,8 +67,8 @@ describe('Routes', () => {
   }
 
   describe('Healthcheck', () => {
-    it('should have GET as method and /api/healthcheck as path', () => {
-      validateMethodAndPath(routes.healthCheck, 'get', '/api/healthcheck');
+    it('should have GET as method and /api/v2/healthcheck as path', () => {
+      validateMethodAndPath(routes.healthCheck, 'get', '/api/v2/healthcheck');
     });
 
     it('should return package.json version as response', async () => {
@@ -79,11 +79,11 @@ describe('Routes', () => {
   });
 
   describe('Filter Used Addresses', () => {
-    it('should have POST as method and /api/addresses/filterUsed as path', () => {
+    it('should have POST as method and /api/v2/addresses/filterUsed as path', () => {
       validateMethodAndPath(
         routes.filterUsedAddresses,
         'post',
-        '/api/addresses/filterUsed',
+        '/api/v2/addresses/filterUsed',
       );
     });
 
@@ -104,11 +104,11 @@ describe('Routes', () => {
   });
 
   describe('UTXO for addresses', () => {
-    it('should have POST as method and /txs/utxoForAddresses as path', () => {
+    it('should have POST as method and /api/v2/txs/utxoForAddresses as path', () => {
       validateMethodAndPath(
         routes.utxoForAddresses,
         'post',
-        '/api/txs/utxoForAddresses',
+        '/api/v2/txs/utxoForAddresses',
       );
     });
 
@@ -129,11 +129,11 @@ describe('Routes', () => {
   });
 
   describe('UTXO Sum for addresses', () => {
-    it('should have POST as method and /txs/utxoSumForAddresses as path', () => {
+    it('should have POST as method and api/v2//txs/utxoSumForAddresses as path', () => {
       validateMethodAndPath(
         routes.utxoSumForAddresses,
         'post',
-        '/api/txs/utxoSumForAddresses',
+        '/api/v2/txs/utxoSumForAddresses',
       );
     });
 
@@ -154,11 +154,11 @@ describe('Routes', () => {
   });
 
   describe('Transactions history', () => {
-    it('should have POST as method and /txs/history as path', () => {
+    it('should have POST as method and /api/v2/txs/history as path', () => {
       validateMethodAndPath(
         routes.transactionsHistory,
         'post',
-        '/api/txs/history',
+        '/api/v2/txs/history',
       );
     });
 
@@ -186,11 +186,11 @@ describe('Routes', () => {
   });
 
   describe('Signed Transaction', () => {
-    it('should have POST as method and /txs/signed as path', () => {
+    it('should have POST as method and /api/v2/txs/signed as path', () => {
       validateMethodAndPath(
         routes.signedTransaction,
         'post',
-        '/api/txs/signed',
+        '/api/v2/txs/signed',
       );
     });
 

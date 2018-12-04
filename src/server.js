@@ -10,11 +10,13 @@ const corsMiddleware = require('restify-cors-middleware');
 const restifyBunyanLogger = require('restify-bunyan-logger');
 const config = require('config');
 const routes = require('./routes');
+const legacyRoutes = require('./legacy-routes');
 const createDB = require('./db');
 const dbApi = require('./db-api');
 const importerApi = require('./importer-api');
 const configCleanup = require('./cleanup');
 const manageConnections = require('./ws-connections');
+const _ = require('lodash');
 
 const serverConfig = config.get('server');
 const { logger, importerSendTxEndpoint } = serverConfig;
@@ -52,7 +54,7 @@ async function createServer() {
   server.use(restify.plugins.bodyParser());
   server.on('after', restifyBunyanLogger());
 
-  Object.values(routes).forEach(({ method, path, handler }: any) => {
+  Object.values(_.merge(routes, legacyRoutes)).forEach(({ method, path, handler }: any) => {
     server[method](path, async (req, res, next) => {
       try {
         const result = await handler(

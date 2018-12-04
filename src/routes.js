@@ -14,7 +14,7 @@ const moment = require('moment');
 const { version } = require('../package.json');
 const errs = require('restify-errors');
 
-const withPrefix = route => `/api${route}`;
+const withPrefix = route => `/api/v2${route}`;
 
 /**
  * This method validates addresses request body

@@ -8,7 +8,7 @@ const createServer = require('../../src/server');
 function api(server): Hippie {
   return hippie(server)
     .json()
-    .base('http://localhost:8080/api');
+    .base('http://localhost:8080/api/v2');
 }
 
 /**

@@ -32,7 +32,9 @@
   "homepage": "https://github.com/input-output-hk/icaraus-poc-backend-service#readme",
   "dependencies": {
     "axios": "0.18.0",
+    "bignum": "^0.13.0",
     "bunyan": "1.8.12",
+    "cardano-crypto.js": "^4.2.1",
     "claudia-api-builder": "4.0.2",
     "config": "1.30.0",
     "dotenv": "^6.1.0",
