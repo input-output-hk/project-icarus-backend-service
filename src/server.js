@@ -53,6 +53,13 @@ async function createServer() {
   server.pre(cors.preflight);
   server.use(cors.actual);
   server.use(restify.plugins.bodyParser());
+  server.use(restify.plugins.throttle({
+    burst: 50,
+    rate: 10,
+    ip: false,
+    xff: true,
+    setHeaders: true,
+  }));
   server.on('after', restifyBunyanLogger());
 
   Object.values(_.merge(routes, legacyRoutes)).forEach(({ method, path, handler }: any) => {
