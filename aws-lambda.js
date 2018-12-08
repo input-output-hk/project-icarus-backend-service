@@ -1,9 +1,9 @@
 const config = require('config');
 const ApiBuilder = require('claudia-api-builder');
 const pg = require('pg');
-const routes = require('./flow-files/routes');
-const dbApi = require('./flow-files/db-api');
-const importerApi = require('./flow-files/importer-api');
+const routes = require('./build/routes');
+const dbApi = require('./build/db-api');
+const importerApi = require('./build/importer-api');
 
 const serverConfig = config.get('server');
 const { importerSendTxEndpoint } = serverConfig;
