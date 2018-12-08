@@ -12,6 +12,7 @@ module.exports = {
     max_restarts: 50,
     out_file: './logs/server.log',
     error_file: './logs/server.log',
+    merge_logs: true,
     env: {
       NODE_ENV: 'production',
     },

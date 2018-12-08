@@ -1,17 +1,17 @@
 // @flow
 
-import type { ServerConfig } from 'icarus-backend'; // eslint-disable-line
-
+const CardanoCrypto = require('cardano-crypto.js');
 const moment = require('moment');
-const cardanoCrypto = require('cardano-crypto.js');
-const bignum = require('bignum');
+const Big = require('big.js');
 const _ = require('lodash');
+
+import type { ServerConfig } from 'icarus-backend'; // eslint-disable-line
 
 const withPrefix = route => `/api${route}`;
 const invalidAddress = 'Invalid Cardano address!';
 const invalidTx = 'Invalid transaction id!';
 
-const arraySum = (numbers) => numbers.reduce((acc, val) => acc.add(bignum(val)), bignum(0));
+const arraySum = (numbers) => numbers.reduce((acc, val) => acc.plus(Big(val)), Big(0));
 
 const txAddressCoins = (addresses, amounts, address) => arraySum(_.zip(addresses, amounts)
   .filter((pair) => pair[0] === address)
@@ -40,15 +40,15 @@ const txToAddressInfo = (row) => ({
 const addressSummary = (dbApi: any, { logger }: ServerConfig) => async (req: any,
 ) => {
   const { address } = req.params;
-  if (!cardanoCrypto.isValidAddress(address)) {
+  if (!CardanoCrypto.isValidAddress(address)) {
     return { Left: invalidAddress };
   }
   const result = await dbApi.addressSummary(address);
   const transactions = result.rows;
   const totalAddressIn = transactions.reduce((acc, tx) =>
-    acc.add(txAddressCoins(tx.outputs_address, tx.outputs_amount, address)), bignum(0));
+    acc.plus(txAddressCoins(tx.outputs_address, tx.outputs_amount, address)), Big(0));
   const totalAddressOut = transactions.reduce((acc, tx) =>
-    acc.add(txAddressCoins(tx.inputs_address, tx.inputs_amount, address)), bignum(0));
+    acc.plus(txAddressCoins(tx.inputs_address, tx.inputs_amount, address)), Big(0));
 
   const right = {
     caAddress: address,
@@ -137,7 +137,7 @@ const unspentTxOutputs = (dbApi: any, { logger, apiConfig }: ServerConfig) => as
   if (!addresses || addresses.length === 0 || addresses.length > limit) {
     return { Left: `Addresses request length should be (0, ${limit}]` };
   }
-  if (addresses.some((addr) => !cardanoCrypto.isValidAddress(addr))) {
+  if (addresses.some((addr) => !CardanoCrypto.isValidAddress(addr))) {
     return { Left: invalidAddress };
   }
   const result = await dbApi.utxoLegacy(addresses);
