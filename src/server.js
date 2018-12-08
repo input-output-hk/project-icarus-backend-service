@@ -40,6 +40,7 @@ async function createServer() {
 
   const defaultRestifyConfig = {
     log: logger,
+    maxParamLength: 1000, // default is 100 (too short for Daedalus addresses)
   };
 
   const restifyConfig = serverConfig.https
