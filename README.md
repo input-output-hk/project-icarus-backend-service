@@ -56,6 +56,17 @@ export DB_PORT=8080
 3.  Go to the repository's path
 4.  Execute the following command: `npm run dev`
 
+## Database migrations
+
+[Knex](https://knexjs.org/#Migrations) is used to handle the migrations. The connection settings are taken from `.env`.
+
+Examples of migration commands:
+```
+yarn run knex migrate:latest
+yarn run knex migrate:rollback
+yarn run knex migrate:make $name
+```
+
 ## Checks & Tests
 
 ### Flow and Eslint
