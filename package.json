@@ -6,8 +6,8 @@
   "scripts": {
     "flow": "flow",
     "build": "flow-remove-types ./src/ -d ./build/ --all --pretty",
-    "dev": "yarn flow-remove-types && export NODE_ENV=develop && nodemon ./build/index.js | bunyan",
-    "staging": "yarn flow-remove-types && export NODE_ENV=staging && nodemon ./build/index.js | bunyan",
+    "dev": "yarn build && NODE_ENV=develop nodemon ./build/index.js | bunyan",
+    "staging": "yarn build && NODE_ENV=staging nodemon ./build/index.js | bunyan",
     "eslint": "eslint ./src",
     "load-test-db": "node ./scripts/test/load_test_db.js",
     "clean-test-db": "node ./scripts/test/clean_test_db.js",
