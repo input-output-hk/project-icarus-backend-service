@@ -38,6 +38,7 @@
     "claudia-api-builder": "4.0.2",
     "config": "1.30.0",
     "dotenv": "^6.1.0",
+    "knex": "^0.16.2",
     "lodash": "4.17.10",
     "moment": "2.22.1",
     "pg": "7.4.1",
