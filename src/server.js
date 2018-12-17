@@ -15,6 +15,7 @@ import dbApi from './db-api'
 import manageConnections from './ws-connections'
 import createDB from './db'
 import configCleanup from './cleanup'
+import apiKeyAuth from './middleware/api-key-auth'
 
 const serverConfig = config.get('server')
 const { logger, importerSendTxEndpoint } = serverConfig
@@ -51,11 +52,13 @@ async function createServer() {
   server.pre(cors.preflight)
   server.use(cors.actual)
   server.use(restify.plugins.bodyParser())
+  server.use(apiKeyAuth)
   server.use(restify.plugins.throttle({
     burst: 50,
     rate: 10,
     ip: false,
-    xff: true,
+    xff: false,
+    username: true,
     setHeaders: true,
   }))
   server.on('after', restifyBunyanLogger())

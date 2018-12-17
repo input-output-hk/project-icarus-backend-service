@@ -57,11 +57,9 @@ typings/
 # dotenv environment variables file
 .env
 
-# folder with built js
+# folders with built js
 build
+build-test
 
 # Claudia Production config file
 claudia-prod.json
-
-# transpiled tests
-test-commonjs/

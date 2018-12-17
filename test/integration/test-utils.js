@@ -2,7 +2,7 @@
 import type { Hippie } from 'hippie'
 // $FlowFixMe callable signature is missing
 import hippie from 'hippie'
-import createServer from '../../build/server'
+import createAppServer from '../../build/server'
 
 function api(server): Hippie {
   return hippie(server)
@@ -13,8 +13,12 @@ function api(server): Hippie {
 /**
  * This function starts a server and executes test endpoint function on it
  * @param {function} testEndpoint Hippie functions to be called
+ * @param {function} createServer Function that creates test server
  */
-export async function runInServer(testEndpoint: Hippie => Promise<boolean>) {
+export async function runInServer(
+  testEndpoint: Hippie => Promise<boolean>,
+  createServer = createAppServer,
+) {
   const server = await createServer()
   let promise
   try {
