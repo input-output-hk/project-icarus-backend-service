@@ -1,10 +1,10 @@
 #! /bin/node
 
-const config = require('config');
-const { execFileSync } = require('child_process');
+const config = require('config')
+const { execFileSync } = require('child_process')
 
-const { host, password, user, database } = config.get('db');
+const { host, password, user, database } = config.get('db')
 
-process.env.PGPASSWORD = password;
+process.env.PGPASSWORD = password
 
-execFileSync('dropdb', [`-U${user}`, `-h${host}`, database]);
+execFileSync('dropdb', [`-U${user}`, `-h${host}`, database])

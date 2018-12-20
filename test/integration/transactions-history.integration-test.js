@@ -1,13 +1,12 @@
-// @flow
-const shuffle = require('shuffle-array');
-const { expect } = require('chai');
-const { runInServer, assertOnResults } = require('./test-utils');
-const moment = require('moment');
+import { expect } from 'chai'
+import moment from 'moment'
+import shuffle from 'shuffle-array'
+import { runInServer, assertOnResults } from './test-utils'
 
-const ENDPOINT = '/txs/history';
+const ENDPOINT = '/txs/history'
 
 // To avoid Possible EventEmitter memory leak detected message
-process.setMaxListeners(0);
+process.setMaxListeners(0)
 
 describe('Transaction History endpoint', () => {
   it('should return empty if addresses do not exist', async () =>
@@ -23,7 +22,7 @@ describe('Transaction History endpoint', () => {
         })
         .expectBody([])
         .end(),
-    ));
+    ))
 
   it('should return empty if there are no tx after the given address', async () =>
     runInServer(api =>
@@ -37,7 +36,7 @@ describe('Transaction History endpoint', () => {
         })
         .expectBody([])
         .end(),
-    ));
+    ))
 
   it('should return history for input and output addresses', async () => {
     const usedAddresses = [
@@ -45,7 +44,7 @@ describe('Transaction History endpoint', () => {
       'DdzFFzCqrhsgBCt25t6JArdDHfJZkzzebapE2qqrg1yoquLZzeEyxzhLAb9x7rVf5aby9jwLvL65hH9zTWjbekwzbeYCjJ5pUKn1rYgB',
       // Output
       'DdzFFzCqrhsqFM8QxHC4ASk4QLfuoWqbY65GeprG8ezEY6VFkP4jz4C4fcDT57fkUUrPN8E2gaPXiWQxjD3BryptceQEx98ALsrYMoSi',
-    ];
+    ]
 
     return runInServer(api =>
       api
@@ -133,14 +132,14 @@ describe('Transaction History endpoint', () => {
           },
         ])
         .end(),
-    );
-  });
+    )
+  })
 
   it('should history once even if addresses sent twice', async () => {
     const usedAddresses = [
       'DdzFFzCqrhsqFM8QxHC4ASk4QLfuoWqbY65GeprG8ezEY6VFkP4jz4C4fcDT57fkUUrPN8E2gaPXiWQxjD3BryptceQEx98ALsrYMoSi',
       'DdzFFzCqrhsqFM8QxHC4ASk4QLfuoWqbY65GeprG8ezEY6VFkP4jz4C4fcDT57fkUUrPN8E2gaPXiWQxjD3BryptceQEx98ALsrYMoSi',
-    ];
+    ]
 
     return runInServer(api =>
       api
@@ -171,13 +170,13 @@ describe('Transaction History endpoint', () => {
           },
         ])
         .end(),
-    );
-  });
+    )
+  })
 
   it('should history once even if addresses is present in input and output', async () => {
     const usedAddresses = [
       'CYhGP86nCaiEEEUSLWTS3gvAzmLTWM8Nj5CuJyqg5y2iJ1jNhwrZWsNE9n9xsmk5HFDa6DdZcPoXTUEYKddVsqJ1Y',
-    ];
+    ]
 
     return runInServer(api =>
       api
@@ -189,25 +188,25 @@ describe('Transaction History endpoint', () => {
         .expect(
           assertOnResults((res, body) => {
             // https://explorer.iohkdev.io/address/CYhGP86nCaiEEEUSLWTS3gvAzmLTWM8Nj5CuJyqg5y2iJ1jNhwrZWsNE9n9xsmk5HFDa6DdZcPoXTUEYKddVsqJ1Y
-            expect(body.length).to.equal(3);
+            expect(body.length).to.equal(3)
           }),
         )
         .end(),
-    );
-  });
+    )
+  })
 
   it('should filter unused addresses', async () => {
     const usedAddresses = [
       'DdzFFzCqrhsqFM8QxHC4ASk4QLfuoWqbY65GeprG8ezEY6VFkP4jz4C4fcDT57fkUUrPN8E2gaPXiWQxjD3BryptceQEx98ALsrYMoSi',
-    ];
+    ]
 
     const unusedAddresses = [
       'DdzFFzCqrhsfYMUNRxtQ5NNKbWVw3ZJBNcMLLZSoqmD5trHHPBDwsjonoBgw1K6e8Qi8bEMs5Y62yZfReEVSFFMncFYDUHUTMM436KjQ',
       'DdzFFzCqrht4s7speawymCPkm9waYHFSv2zwxhmFqHHQK5FDFt7fd9EBVvm64CrELzxaRGMcygh3gnBrXCtJzzodvzJqVR8VTZqW4rKJ',
       'DdzFFzCqrht8d5FeU62PpBw1e3JLUP48LKfDfNtUyfuBJjBEqmgfYpwcbNHCh3csA4DEzu7SYquoUdmkcknR1E1D6zz5byvpMx632VJx',
-    ];
+    ]
 
-    const addresses = shuffle(usedAddresses.concat(unusedAddresses));
+    const addresses = shuffle(usedAddresses.concat(unusedAddresses))
     return runInServer(api =>
       api
         .post(ENDPOINT)
@@ -234,15 +233,15 @@ describe('Transaction History endpoint', () => {
           },
         ])
         .end(),
-    );
-  });
+    )
+  })
 
   it('should paginate responses', async () => {
     const addresses = [
       'DdzFFzCqrhsjyFvzVsaahmL93VEno1PRkXxUFqJAxRpA52VAyTHVKRGBFyGvGQmr9Ya8kiQF4bmXqTqMZ8G84Krp4xmHkJSvt6txEMXA',
-    ];
+    ]
 
-    let lastDateFrom;
+    let lastDateFrom
 
     await runInServer(api =>
       api
@@ -250,16 +249,16 @@ describe('Transaction History endpoint', () => {
         .send({ addresses, dateFrom: moment('1995-12-25').toISOString() })
         .expect(
           assertOnResults((res, body) => {
-            expect(body.length).to.equal(20);
-            const lastElem = body[body.length - 1];
+            expect(body.length).to.equal(20)
+            const lastElem = body[body.length - 1]
             expect(lastElem.hash).to.equal(
               'a3f8d071d027b44571fc9dd50d17edb8c55768d8a7cb8a6709256f146d228ca8',
-            );
-            lastDateFrom = lastElem.last_update;
+            )
+            lastDateFrom = lastElem.last_update
           }),
         )
         .end(),
-    );
+    )
 
     return runInServer(api =>
       api
@@ -271,13 +270,13 @@ describe('Transaction History endpoint', () => {
         })
         .expect(
           assertOnResults((res, body) => {
-            expect(body.length).to.equal(20);
+            expect(body.length).to.equal(20)
             expect(body[0].hash).to.equal(
               'a3f8d071d027b44571fc9dd50d17edb8c55768d8a7cb8a6709256f146d228ca8',
-            );
+            )
           }),
         )
         .end(),
-    );
-  });
-});
+    )
+  })
+})

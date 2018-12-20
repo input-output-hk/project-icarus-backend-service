@@ -1,31 +1,29 @@
 // @flow
-import type { Hippie } from 'hippie';
-
-// $FlowFixMe Fix this assignment as it throws an error
-const hippie: Hippie = require('hippie');
-const createServer = require('../../src/server');
+import type { Hippie } from 'hippie'
+import hippie from 'hippie'
+import createServer from '../../build/server'
 
 function api(server): Hippie {
   return hippie(server)
     .json()
-    .base('http://localhost:8080/api/v2');
+    .base('http://localhost:8080/api/v2')
 }
 
 /**
  * This function starts a server and executes test endpoint function on it
  * @param {function} testEndpoint Hippie functions to be called
  */
-async function runInServer(testEndpoint: Hippie => Promise<boolean>) {
-  const server = await createServer();
-  let promise;
+export async function runInServer(testEndpoint: Hippie => Promise<boolean>) {
+  const server = await createServer()
+  let promise
   try {
-    await testEndpoint(api(server));
+    await testEndpoint(api(server))
   } finally {
     promise = new Promise(resolve => {
-      server.close(() => resolve(true));
-    });
+      server.close(() => resolve(true))
+    })
   }
-  return promise;
+  return promise
 }
 
 /**
@@ -33,20 +31,15 @@ async function runInServer(testEndpoint: Hippie => Promise<boolean>) {
  * It will call next if no errors, next(err) if an assertion thrown
  * @param {function} assertionsFn Set of assertions.
  */
-const assertOnResults = (assertionsFn: (Object, Object, Function) => void) => (
+export const assertOnResults = (assertionsFn: (Object, Object, Function) => void) => (
   res: Object,
   body: Object,
   next: Function,
 ) => {
   try {
-    assertionsFn(res, body, next);
-    next();
+    assertionsFn(res, body, next)
+    next()
   } catch (err) {
-    next(err);
+    next(err)
   }
-};
-
-module.exports = {
-  runInServer,
-  assertOnResults,
-};
+}

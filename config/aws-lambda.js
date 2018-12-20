@@ -1,4 +1,4 @@
-const { raw } = require('config/raw');
+const { raw } = require('config/raw')
 
 module.exports = {
   server: {
@@ -16,4 +16,4 @@ module.exports = {
     idleTimeoutMillis: 1000,
     connectionTimeoutMillis: 1000 * 10,
   },
-};
+}

@@ -1,8 +1,8 @@
 // @flow
-const axios = require('axios');
+import { post } from 'axios'
 
 import type { ImporterApi } from 'icarus-backend'; // eslint-disable-line
 
-module.exports = (importerSendTxEndpoint: string): ImporterApi => ({
-  sendTx: tx => axios.post(importerSendTxEndpoint, tx),
-});
+export default (importerSendTxEndpoint: string): ImporterApi => ({
+  sendTx: tx => post(importerSendTxEndpoint, tx),
+})

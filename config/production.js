@@ -1,5 +1,5 @@
-const { raw } = require('config/raw');
-const { consoleLogger } = require('../src/logger');
+const { raw } = require('config/raw')
+const { consoleLogger } = require('../src/logger')
 
 module.exports = {
   appName: 'icarus-poc-backend-service',
@@ -13,4 +13,4 @@ module.exports = {
     },
     importerSendTxEndpoint: 'https://localhost:8200/api/txs/signed',
   },
-};
+}

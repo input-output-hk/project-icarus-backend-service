@@ -62,3 +62,6 @@ build
 
 # Claudia Production config file
 claudia-prod.json
+
+# transpiled tests
+test-commonjs/

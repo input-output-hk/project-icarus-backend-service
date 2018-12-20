@@ -1,6 +1,5 @@
-// @flow
-const { runInServer } = require('./test-utils');
-const packageJson = require('../../package.json');
+import { runInServer } from './test-utils'
+import packageJson from '../../package.json'
 
 describe('Healthcheck endpoint', () => {
   it('Should return package.json version', async () =>
@@ -9,5 +8,5 @@ describe('Healthcheck endpoint', () => {
         .get('/healthcheck')
         .expectValue('version', packageJson.version)
         .end(),
-    ));
-});
+    ))
+})

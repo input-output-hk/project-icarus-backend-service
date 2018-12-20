@@ -1,6 +1,6 @@
 // @flow
 
-import type { Pool, ResultSet } from 'pg';
+import type { Pool, ResultSet } from 'pg'
 import type { DbApi } from 'icarus-backend'; // eslint-disable-line
 
 /**
@@ -15,13 +15,13 @@ const filterUsedAddresses = (db: Pool) => async (
     text: 'SELECT DISTINCT address FROM "tx_addresses" WHERE address = ANY($1)',
     values: [addresses],
     rowMode: 'array',
-  });
+  })
 
 const unspentAddresses = (db: Pool) => async (): Promise<ResultSet> =>
   db.query({
     text: 'SELECT DISTINCT utxos.receiver FROM utxos',
     rowMode: 'array',
-  });
+  })
 
 /**
  * Queries UTXO table looking for unspents for given addresses
@@ -30,12 +30,12 @@ const unspentAddresses = (db: Pool) => async (): Promise<ResultSet> =>
  * @param {Array<Address>} addresses
  */
 const utxoForAddresses = (db: Pool) => async (addresses: Array<string>) =>
-  db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [addresses]);
+  db.query('SELECT * FROM "utxos" WHERE receiver = ANY($1)', [addresses])
 
 const utxoSumForAddresses = (db: Pool) => async (addresses: Array<string>) =>
   db.query('SELECT SUM(amount) FROM "utxos" WHERE receiver = ANY($1)', [
     addresses,
-  ]);
+  ])
 
 // Cached queries
 const txHistoryQuery = (limit: number) => `
@@ -51,7 +51,7 @@ const txHistoryQuery = (limit: number) => `
     AND last_update >= $2
   ORDER BY last_update ASC
   LIMIT ${limit}
-`;
+`
 
 /**
  * Queries DB looking for transactions including (either inputs or outputs)
@@ -64,7 +64,7 @@ const transactionsHistoryForAddresses = (db: Pool) => async (
   limit: number,
   addresses: Array<string>,
   dateFrom: Date,
-): Promise<ResultSet> => db.query(txHistoryQuery(limit), [addresses, dateFrom]);
+): Promise<ResultSet> => db.query(txHistoryQuery(limit), [addresses, dateFrom])
 
 // The remaining queries should be used only for the purposes of the legacy API!
 
@@ -77,7 +77,7 @@ const addressSummary = (db: Pool) => async (address: string): Promise<ResultSet>
   db.query({
     text: 'SELECT * FROM "txs" WHERE hash = ANY (SELECT tx_hash from "tx_addresses" WHERE address = $1) AND tx_state = $2',
     values: [address, 'Successful'],
-  });
+  })
 
 /**
 * Queries TXS table looking for a successful transaction with a given hash
@@ -88,7 +88,7 @@ const txSummary = (db: Pool) => async (tx: string): Promise<ResultSet> =>
   db.query({
     text: 'SELECT * FROM "txs" WHERE hash = $1 AND tx_state = $2',
     values: [tx, 'Successful'],
-  });
+  })
 
 /**
  * Queries UTXO table looking for unspents for given addresses and renames the columns
@@ -101,9 +101,9 @@ const utxoLegacy = (db: Pool) => async (addresses: Array<string>): Promise<Resul
       FROM "utxos"
       WHERE receiver = ANY($1)`,
     values: [addresses],
-  });
+  })
 
-module.exports = (db: Pool): DbApi => ({
+export default (db: Pool): DbApi => ({
   filterUsedAddresses: filterUsedAddresses(db),
   unspentAddresses: unspentAddresses(db),
   utxoForAddresses: utxoForAddresses(db),
@@ -113,4 +113,4 @@ module.exports = (db: Pool): DbApi => ({
   addressSummary: addressSummary(db),
   txSummary: txSummary(db),
   utxoLegacy: utxoLegacy(db),
-});
+})

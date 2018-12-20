@@ -1,9 +1,8 @@
-// @flow
-const shuffle = require('shuffle-array');
-const { expect } = require('chai');
-const { runInServer, assertOnResults } = require('./test-utils');
+import { expect } from 'chai'
+import shuffle from 'shuffle-array'
+import { runInServer, assertOnResults } from './test-utils'
 
-const ENDPOINT = '/txs/utxoForAddresses';
+const ENDPOINT = '/txs/utxoForAddresses'
 
 describe('UtxoForAddresses endpoint', () => {
   it('should return empty if addresses do not exist', async () =>
@@ -18,13 +17,13 @@ describe('UtxoForAddresses endpoint', () => {
         })
         .expectBody([])
         .end(),
-    ));
+    ))
 
   it('should return data for addresses balance once even if sent twice', async () => {
     const usedAddresses = [
       'DdzFFzCqrhshvqw9GrHmSw6ySwViBj5cj2njWj5mbnLu4uNauJCKuXhHS3wNUoGRNBGGTkyTFDQNrUWMumZ3mxarAjoXiYvyhead7yKQ',
       'DdzFFzCqrhshvqw9GrHmSw6ySwViBj5cj2njWj5mbnLu4uNauJCKuXhHS3wNUoGRNBGGTkyTFDQNrUWMumZ3mxarAjoXiYvyhead7yKQ',
-    ];
+    ]
 
     return runInServer(api =>
       api
@@ -43,20 +42,20 @@ describe('UtxoForAddresses endpoint', () => {
           },
         ])
         .end(),
-    );
-  });
+    )
+  })
 
   it('should filter unused addresses', async () => {
     const usedAddresses = [
       'DdzFFzCqrhshvqw9GrHmSw6ySwViBj5cj2njWj5mbnLu4uNauJCKuXhHS3wNUoGRNBGGTkyTFDQNrUWMumZ3mxarAjoXiYvyhead7yKQ',
       'DdzFFzCqrhskrzzPrXynkZ3gteGy8GmWYrswqz9SueoFP9PV5suFnGv9sQqg3o5pxzFpDTJ2HFJzHrThxBYarQi8guzMUhuiePB1T6ff',
-    ];
+    ]
 
     const unusedAddresses = [
       'DdzFFzCqrhsfYMUNRxtQ5NNKbWVw3ZJBNcMLLZSoqmD5trHHPBDwsjonoBgw1K6e8Qi8bEMs5Y62yZfReEVSFFMncFYDUHUTMM436KjQ',
       'DdzFFzCqrht4s7speawymCPkm9waYHFSv2zwxhmFqHHQK5FDFt7fd9EBVvm64CrELzxaRGMcygh3gnBrXCtJzzodvzJqVR8VTZqW4rKJ',
       'DdzFFzCqrht8d5FeU62PpBw1e3JLUP48LKfDfNtUyfuBJjBEqmgfYpwcbNHCh3csA4DEzu7SYquoUdmkcknR1E1D6zz5byvpMx632VJx',
-    ];
+    ]
 
     const expectedUTOXs = [
       {
@@ -79,19 +78,19 @@ describe('UtxoForAddresses endpoint', () => {
           'DdzFFzCqrhskrzzPrXynkZ3gteGy8GmWYrswqz9SueoFP9PV5suFnGv9sQqg3o5pxzFpDTJ2HFJzHrThxBYarQi8guzMUhuiePB1T6ff',
         amount: '9829100',
       },
-    ];
+    ]
 
-    const addresses = shuffle(usedAddresses.concat(unusedAddresses));
+    const addresses = shuffle(usedAddresses.concat(unusedAddresses))
     return runInServer(api =>
       api
         .post(ENDPOINT)
         .send({ addresses })
         .expect(
           assertOnResults((res, body) => {
-            expect(body).to.have.same.deep.members(expectedUTOXs);
+            expect(body).to.have.same.deep.members(expectedUTOXs)
           }),
         )
         .end(),
-    );
-  });
-});
+    )
+  })
+})

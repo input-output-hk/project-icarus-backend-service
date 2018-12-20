@@ -1,21 +1,21 @@
 // @flow
 
-const CardanoCrypto = require('cardano-crypto.js');
-const moment = require('moment');
-const Big = require('big.js');
-const _ = require('lodash');
+import { isValidAddress } from 'cardano-crypto.js'
+import moment from 'moment'
+import Big from 'big.js'
+import { zip, nth } from 'lodash'
 
 import type { ServerConfig } from 'icarus-backend'; // eslint-disable-line
 
-const withPrefix = route => `/api${route}`;
-const invalidAddress = 'Invalid Cardano address!';
-const invalidTx = 'Invalid transaction id!';
+const withPrefix = route => `/api${route}`
+const invalidAddress = 'Invalid Cardano address!'
+const invalidTx = 'Invalid transaction id!'
 
-const arraySum = (numbers) => numbers.reduce((acc, val) => acc.plus(Big(val)), Big(0));
+const arraySum = (numbers) => numbers.reduce((acc, val) => acc.plus(Big(val)), Big(0))
 
-const txAddressCoins = (addresses, amounts, address) => arraySum(_.zip(addresses, amounts)
+const txAddressCoins = (addresses, amounts, address) => arraySum(zip(addresses, amounts)
   .filter((pair) => pair[0] === address)
-  .map((pair) => _.nth(pair, 1)));
+  .map((pair) => nth(pair, 1)))
 
 const txToAddressInfo = (row) => ({
   ctbId: row.hash,
@@ -30,7 +30,7 @@ const txToAddressInfo = (row) => ({
   ctbOutputSum: {
     getCoin: `${arraySum(row.outputs_amount)}`,
   },
-});
+})
 
 /**
  * This endpoint returns a summary for a given address
@@ -39,16 +39,16 @@ const txToAddressInfo = (row) => ({
  */
 const addressSummary = (dbApi: any, { logger }: ServerConfig) => async (req: any,
 ) => {
-  const { address } = req.params;
-  if (!CardanoCrypto.isValidAddress(address)) {
-    return { Left: invalidAddress };
+  const { address } = req.params
+  if (!isValidAddress(address)) {
+    return { Left: invalidAddress }
   }
-  const result = await dbApi.addressSummary(address);
-  const transactions = result.rows;
+  const result = await dbApi.addressSummary(address)
+  const transactions = result.rows
   const totalAddressIn = transactions.reduce((acc, tx) =>
-    acc.plus(txAddressCoins(tx.outputs_address, tx.outputs_amount, address)), Big(0));
+    acc.plus(txAddressCoins(tx.outputs_address, tx.outputs_amount, address)), Big(0))
   const totalAddressOut = transactions.reduce((acc, tx) =>
-    acc.plus(txAddressCoins(tx.inputs_address, tx.inputs_amount, address)), Big(0));
+    acc.plus(txAddressCoins(tx.inputs_address, tx.inputs_amount, address)), Big(0))
 
   const right = {
     caAddress: address,
@@ -58,10 +58,10 @@ const addressSummary = (dbApi: any, { logger }: ServerConfig) => async (req: any
       getCoin: `${totalAddressIn.sub(totalAddressOut)}`,
     },
     caTxList: transactions.map(txToAddressInfo),
-  };
-  logger.debug('[addressSummary] result calculated');
-  return { Right: right };
-};
+  }
+  logger.debug('[addressSummary] result calculated')
+  return { Right: right }
+}
 
 /**
  * This endpoint returns a transaction summary for a given hash
@@ -70,18 +70,18 @@ const addressSummary = (dbApi: any, { logger }: ServerConfig) => async (req: any
  */
 const txSummary = (dbApi: any, { logger }: ServerConfig) => async (req: any,
 ) => {
-  const { tx } = req.params;
-  const result = await dbApi.txSummary(tx);
+  const { tx } = req.params
+  const result = await dbApi.txSummary(tx)
   if (result.rows.length === 0) {
-    return { Left: invalidTx };
+    return { Left: invalidTx }
   }
-  const row = result.rows[0];
-  const totalInput = arraySum(row.inputs_amount);
-  const totalOutput = arraySum(row.outputs_amount);
-  const epoch0 = 1506203091;
-  const slotSeconds = 20;
-  const epochSlots = 21600;
-  const blockTime = moment(row.time).unix();
+  const row = result.rows[0]
+  const totalInput = arraySum(row.inputs_amount)
+  const totalOutput = arraySum(row.outputs_amount)
+  const epoch0 = 1506203091
+  const slotSeconds = 20
+  const epochSlots = 21600
+  const blockTime = moment(row.time).unix()
   const right = {
     ctsId: row.hash,
     ctsTxTimeIssued: blockTime,
@@ -104,10 +104,10 @@ const txSummary = (dbApi: any, { logger }: ServerConfig) => async (req: any,
       (addr, i) => [addr, { getCoin: row.inputs_amount[i] }]),
     ctsOutputs: row.outputs_address.map(
       (addr, i) => [addr, { getCoin: row.outputs_amount[i] }]),
-  };
-  logger.debug('[txSummary] result calculated');
-  return { Right: right };
-};
+  }
+  logger.debug('[txSummary] result calculated')
+  return { Right: right }
+}
 
 /**
  * This endpoint returns a raw transaction body for a given hash
@@ -116,14 +116,14 @@ const txSummary = (dbApi: any, { logger }: ServerConfig) => async (req: any,
  */
 const txRaw = (dbApi: any, { logger }: ServerConfig) => async (req: any,
 ) => {
-  const { tx } = req.params;
-  const result = await dbApi.txSummary(tx);
+  const { tx } = req.params
+  const result = await dbApi.txSummary(tx)
   if (result.rows.length === 0) {
-    return { Left: invalidTx };
+    return { Left: invalidTx }
   }
-  logger.debug('[txRaw] result calculated');
-  return { Right: result.rows[0].tx_body };
-};
+  logger.debug('[txRaw] result calculated')
+  return { Right: result.rows[0].tx_body }
+}
 
 /**
  * This endpoint returns unspent transaction outputs for a given array of addresses
@@ -132,26 +132,47 @@ const txRaw = (dbApi: any, { logger }: ServerConfig) => async (req: any,
  */
 const unspentTxOutputs = (dbApi: any, { logger, apiConfig }: ServerConfig) => async (req: any,
 ) => {
-  const addresses = req.body;
-  const limit = apiConfig.addressesRequestLimit;
+  const addresses = req.body
+  const limit = apiConfig.addressesRequestLimit
   if (!addresses || addresses.length === 0 || addresses.length > limit) {
-    return { Left: `Addresses request length should be (0, ${limit}]` };
+    return { Left: `Addresses request length should be (0, ${limit}]` }
   }
-  if (addresses.some((addr) => !CardanoCrypto.isValidAddress(addr))) {
-    return { Left: invalidAddress };
+  if (addresses.some((addr) => !isValidAddress(addr))) {
+    return { Left: invalidAddress }
   }
-  const result = await dbApi.utxoLegacy(addresses);
+  const result = await dbApi.utxoLegacy(addresses)
   const mappedRows = result.rows.map((row) => {
-    const coins = row.cuCoins;
-    const newRow = row;
-    newRow.cuCoins = { getCoin: coins };
-    return newRow;
-  });
-  logger.debug('[unspentTxOutputs] result calculated');
-  return { Right: mappedRows };
-};
+    const coins = row.cuCoins
+    const newRow = row
+    newRow.cuCoins = { getCoin: coins }
+    return newRow
+  })
+  logger.debug('[unspentTxOutputs] result calculated')
+  return { Right: mappedRows }
+}
 
-module.exports = {
+export const addressSummaryX = {
+  method: 'get',
+  path: withPrefix('/addresses/summary/:address'),
+  handler: addressSummary,
+}
+export const txSummaryX = {
+  method: 'get',
+  path: withPrefix('/txs/summary/:tx'),
+  handler: txSummary,
+}
+export const txRawX = {
+  method: 'get',
+  path: withPrefix('/txs/raw/:tx'),
+  handler: txRaw,
+}
+export const unspentTxOutputsX = {
+  method: 'post',
+  path: withPrefix('/bulk/addresses/utxo'),
+  handler: unspentTxOutputs,
+}
+
+export default {
   addressSummary: {
     method: 'get',
     path: withPrefix('/addresses/summary/:address'),
@@ -167,9 +188,9 @@ module.exports = {
     path: withPrefix('/txs/raw/:tx'),
     handler: txRaw,
   },
-  unspentTxOutputs: {
+  unspentTxOutputsX: {
     method: 'post',
     path: withPrefix('/bulk/addresses/utxo'),
     handler: unspentTxOutputs,
   },
-};
+}

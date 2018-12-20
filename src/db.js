@@ -1,7 +1,6 @@
 // @flow
 
-import type { PgPoolConfig, Pool } from 'pg';
+import type { PgPoolConfig, Pool } from 'pg'
+import PG from 'pg'
 
-const PG = require('pg');
-
-module.exports = (dbSettings: PgPoolConfig): Pool => new PG.Pool(dbSettings);
+export default (dbSettings: PgPoolConfig): Pool => new PG.Pool(dbSettings)

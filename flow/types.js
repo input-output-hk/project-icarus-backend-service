@@ -1,6 +1,6 @@
-import type { Logger } from 'bunyan';
-import type { ResultSet } from 'pg';
-import type { AxiosPromise } from 'axios';
+import type { Logger } from 'bunyan'
+import type { ResultSet } from 'pg'
+import type { AxiosPromise } from 'axios'
 
 declare module 'icarus-backend' {
   declare type ServerConfig = {

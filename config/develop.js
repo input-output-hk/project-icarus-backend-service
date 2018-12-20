@@ -1,5 +1,5 @@
-const { raw } = require('config/raw');
-const { consoleLogger } = require('../src/logger');
+const { raw } = require('config/raw')
+const { consoleLogger } = require('../src/logger')
 
 module.exports = {
   server: {
@@ -21,4 +21,4 @@ module.exports = {
     idleTimeoutMillis: 1000,
     connectionTimeoutMillis: 5000,
   },
-};
+}
