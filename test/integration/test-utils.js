@@ -1,5 +1,6 @@
 // @flow
 import type { Hippie } from 'hippie'
+// $FlowFixMe callable signature is missing
 import hippie from 'hippie'
 import createServer from '../../build/server'
 
