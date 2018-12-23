@@ -1,8 +1,6 @@
 // @flow
 import type { Pool } from 'pg' // eslint-disable-line
 import { merge } from 'lodash' // eslint-disable-line
-import { readFileSync } from 'fs'
-import { join } from 'path'
 import { Server as WebSocketServer } from 'ws'
 import corsMiddleware from 'restify-cors-middleware'
 import restifyBunyanLogger from 'restify-bunyan-logger'
@@ -20,33 +18,14 @@ import apiKeyAuth from './middleware/api-key-auth'
 const serverConfig = config.get('server')
 const { logger, importerSendTxEndpoint } = serverConfig
 
-function addHttps(defaultRestifyConfig) {
-  const TLS_DIR = join(
-    serverConfig.https.tlsDir,
-    process.env.NODE_ENV ? process.env.NODE_ENV : '',
-  )
-  const httpsConfig = {
-    certificate: readFileSync(`${TLS_DIR}/server.crt`),
-    key: readFileSync(`${TLS_DIR}/server.key`),
-    ca: readFileSync(`${TLS_DIR}/ca.pem`),
-  }
-  return Object.assign({}, defaultRestifyConfig, httpsConfig)
-}
-
 async function createServer() {
   const db = await createDB(config.get('db'))
   logger.info('Connected to db')
 
-  const defaultRestifyConfig = {
+  const server = restify.createServer({
     log: logger,
     maxParamLength: 1000, // default is 100 (too short for Daedalus addresses)
-  }
-
-  const restifyConfig = serverConfig.https
-    ? addHttps(defaultRestifyConfig)
-    : defaultRestifyConfig
-
-  const server = restify.createServer(restifyConfig)
+  })
 
   const cors = corsMiddleware({ origins: serverConfig.corsEnabledFor })
   server.pre(cors.preflight)
