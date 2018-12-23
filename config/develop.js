@@ -5,9 +5,6 @@ module.exports = {
   server: {
     corsEnabledFor: ['*'],
     logger: raw(consoleLogger('debug')),
-    https: {
-      tlsDir: './tls-files',
-    },
     importerSendTxEndpoint: 'https://localhost:8200/api/txs/signed',
   },
   db: {
