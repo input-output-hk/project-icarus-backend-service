@@ -23,6 +23,8 @@ export async function runInServer(
   let promise
   try {
     await testEndpoint(api(server))
+  } catch (e) {
+    console.log(e)
   } finally {
     promise = new Promise(resolve => {
       server.close(() => resolve(true))

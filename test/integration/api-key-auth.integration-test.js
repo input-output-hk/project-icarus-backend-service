@@ -73,13 +73,13 @@ describe('api key authentication', () => {
     ),
   )
 
-  it('should not set username or authorization if scheme is incorrect', async () =>
+  it('should set anonymous username if scheme is incorrect', async () =>
     runInServer(
       api =>
         api
           .header('Authorization', 'Basic dXNlcjpwYXNzd29yZA==')
           .get(testEndpoint)
-          .expectBody({})
+          .expectBody({ username: 'anonymous-::ffff:127.0.0.1' })
           .end(),
       createServer,
     ),
