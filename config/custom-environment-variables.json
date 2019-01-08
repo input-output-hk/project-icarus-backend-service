@@ -5,5 +5,9 @@
     "database": "DB",
     "password": "DB_PASSWORD",
     "port": "DB_PORT"
+  } ,
+  "slack": {
+    "token": "SLACK_TOKEN",
+    "channelId": "SLACK_CHANNEL"
   }
 }

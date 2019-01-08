@@ -114,15 +114,28 @@ const lastTxs = (db: Pool) => async (): Promise<ResultSet> =>
       LIMIT 20`,
   })
 
+const bestBlock = (db: Pool) => async (): Promise<any> => {
+  const query = await db.query('SELECT * FROM "bestblock"')
+  return query.rows[0].best_block_num
+}
+
 export default (db: Pool): DbApi => ({
   filterUsedAddresses: filterUsedAddresses(db),
   unspentAddresses: unspentAddresses(db),
   utxoForAddresses: utxoForAddresses(db),
   utxoSumForAddresses: utxoSumForAddresses(db),
   transactionsHistoryForAddresses: transactionsHistoryForAddresses(db),
+  bestBlock: bestBlock(db),
   // legacy
   addressSummary: addressSummary(db),
   txSummary: txSummary(db),
   utxoLegacy: utxoLegacy(db),
+<<<<<<< HEAD
+<<<<<<< HEAD
   lastTxs: lastTxs(db),
+=======
+  bestBlock: bestBlock(db),
+>>>>>>> Adalite Backup
+=======
+>>>>>>> Fix some flow errors
 })

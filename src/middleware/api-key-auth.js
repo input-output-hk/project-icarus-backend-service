@@ -3,12 +3,12 @@ import errors from 'restify-errors'
 
 const SUPPORTED_SCHEME = 'Bearer'
 
-function createAnonymousUserApiKey(req) {
+function createAnonymousUserApiKey(req: any) {
   const remoteAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   return remoteAddress ? `anonymous-${remoteAddress}` : null
 }
 
-function apiKeyAuth(req, res, next) {
+function apiKeyAuth(req: any, res: any, next: any) {
   const anonymousUserApiKey = createAnonymousUserApiKey(req)
   if (anonymousUserApiKey) {
     req.username = anonymousUserApiKey
