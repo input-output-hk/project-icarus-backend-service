@@ -151,25 +151,22 @@ const unspentTxOutputs = (dbApi: any, { logger, apiConfig }: ServerConfig) => as
   return { Right: mappedRows }
 }
 
-export const addressSummaryX = {
-  method: 'get',
-  path: withPrefix('/addresses/summary/:address'),
-  handler: addressSummary,
-}
-export const txSummaryX = {
-  method: 'get',
-  path: withPrefix('/txs/summary/:tx'),
-  handler: txSummary,
-}
-export const txRawX = {
-  method: 'get',
-  path: withPrefix('/txs/raw/:tx'),
-  handler: txRaw,
-}
-export const unspentTxOutputsX = {
-  method: 'post',
-  path: withPrefix('/bulk/addresses/utxo'),
-  handler: unspentTxOutputs,
+/**
+ * This endpoint returns information about the last 20 transactions
+ * @param {*} db Database
+ * @param {*} Server Server Config Object
+ */
+const lastTxs = (dbApi: any, { logger }: ServerConfig) => async () => {
+  const result = await dbApi.lastTxs()
+  const right = result.rows.map((row) => ({
+    cteId: row.hash,
+    cteTimeIssued: moment(row.time).unix(),
+    cteAmount: {
+      getCoin: arraySum(row.outputs_amount),
+    },
+  }))
+  logger.debug('[lastTxs] result calculated')
+  return { Right: right }
 }
 
 export default {
@@ -188,9 +185,14 @@ export default {
     path: withPrefix('/txs/raw/:tx'),
     handler: txRaw,
   },
-  unspentTxOutputsX: {
+  unspentTxOutputs: {
     method: 'post',
     path: withPrefix('/bulk/addresses/utxo'),
     handler: unspentTxOutputs,
+  },
+  lastTxs: {
+    method: 'get',
+    path: withPrefix('/txs/last'),
+    handler: lastTxs,
   },
 }

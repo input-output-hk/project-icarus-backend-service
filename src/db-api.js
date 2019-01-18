@@ -103,6 +103,17 @@ const utxoLegacy = (db: Pool) => async (addresses: Array<string>): Promise<Resul
     values: [addresses],
   })
 
+  /**
+* Queries TXS table for the last 20 transactions
+* @param {Db Object} db
+*/
+const lastTxs = (db: Pool) => async (): Promise<ResultSet> =>
+  db.query({
+    text: `SELECT * FROM "txs"
+      ORDER BY "time" DESC
+      LIMIT 20`,
+  })
+
 export default (db: Pool): DbApi => ({
   filterUsedAddresses: filterUsedAddresses(db),
   unspentAddresses: unspentAddresses(db),
@@ -113,4 +124,5 @@ export default (db: Pool): DbApi => ({
   addressSummary: addressSummary(db),
   txSummary: txSummary(db),
   utxoLegacy: utxoLegacy(db),
+  lastTxs: lastTxs(db),
 })
