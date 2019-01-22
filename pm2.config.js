@@ -1,7 +1,7 @@
 module.exports = {
   apps: [{
     name: 'backend-service',
-    script: './build/index.js',
+    script: 'yarn start',
     args: '',
     instances: 1,
     autorestart: true,
