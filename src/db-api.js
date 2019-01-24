@@ -130,12 +130,5 @@ export default (db: Pool): DbApi => ({
   addressSummary: addressSummary(db),
   txSummary: txSummary(db),
   utxoLegacy: utxoLegacy(db),
-<<<<<<< HEAD
-<<<<<<< HEAD
   lastTxs: lastTxs(db),
-=======
-  bestBlock: bestBlock(db),
->>>>>>> Adalite Backup
-=======
->>>>>>> Fix some flow errors
 })
