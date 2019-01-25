@@ -5,8 +5,8 @@
   "main": "./src/index.js",
   "scripts": {
     "flow": "flow",
-    "build": "flow-remove-types ./src/ -d ./build/ --all --pretty && babel ./build/ --out-dir ./build/",
-    "start": "rm -rf build/ && yarn build && NODE_ENV=production node ./build/index.js",
+    "build": "rm -rf build/ && flow-remove-types ./src/ -d ./build/ --all --pretty && babel ./build/ --out-dir ./build/",
+    "start": "NODE_ENV=production node ./build/index.js",
     "dev": "yarn build && export NODE_ENV=develop && nodemon ./build/index.js | bunyan",
     "staging": "yarn build && export NODE_ENV=staging && nodemon ./build/index.js | bunyan",
     "eslint": "eslint ./src",
