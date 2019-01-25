@@ -6,6 +6,7 @@ module.exports = {
     corsEnabledFor: ['*'],
     logger: raw(consoleLogger('fatal')),
     importerSendTxEndpoint: 'https://localhost:8200/api/txs/signed',
+    disableHealthcheck: true,
   },
   db: {
     user: 'postgres',

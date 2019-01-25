@@ -18,7 +18,7 @@ import healthCheck from './healthcheck'
 import responseGuard from './middleware/response-guard'
 
 const serverConfig = config.get('server')
-const { logger, importerSendTxEndpoint } = serverConfig
+const { logger, importerSendTxEndpoint, disableHealthcheck } = serverConfig
 
 async function createServer() {
   const db = await createDB(config.get('db'))
@@ -29,7 +29,9 @@ async function createServer() {
     maxParamLength: 1000, // default is 100 (too short for Daedalus addresses)
   })
 
-  healthCheck(db)
+  if (!disableHealthcheck) {
+    healthCheck(db)
+  }
 
   const cors = corsMiddleware({ origins: serverConfig.corsEnabledFor })
   server.pre(cors.preflight)

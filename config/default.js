@@ -6,5 +6,6 @@ module.exports = {
       addressesRequestLimit: 50,
       txHistoryResponseLimit: 20,
     },
+    disableHealthcheck: false,
   },
 }

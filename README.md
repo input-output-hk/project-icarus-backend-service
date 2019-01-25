@@ -1,7 +1,6 @@
 # Project Icarus - Backend Service
 
-[![CircleCI](https://circleci.com/gh/input-output-hk/icarus-poc-backend-service.svg?style=svg)](https://circleci.com/gh/input-output-hk/icarus-poc-backend-service)
-
+[![CircleCI](https://circleci.com/gh/vacuumlabs/adalite-backend-service.svg?style=svg)](https://circleci.com/gh/vacuumlabs/adalite-backend-service)
 
 Icarus, a reference implementation for a lightweight wallet developed by the IOHK Engineering Team. This code base can be used as a point of reference to enable developers to create their own secure light and mobile wallets for Cardano. Icarus is a fully open-source code base that will be the first step in a range of open source initiatives to provide developers with a suite of tools to integrate with Cardano.
 

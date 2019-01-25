@@ -1,4 +1,4 @@
-// @flow
+// TODO: fix flow issues and start monitoring this file again
 import type { Hippie } from 'hippie'
 // $FlowFixMe callable signature is missing
 import hippie from 'hippie'

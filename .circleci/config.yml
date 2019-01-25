@@ -4,13 +4,11 @@
 #
 version: 2
 jobs:
-  build:
+  test:
     docker:
       # specify the version you desire here
       - image: circleci/node:8-browsers
-      
       - image: circleci/postgres:9.6.5-alpine-ram
-
     working_directory: ~/repo
 
     steps:
@@ -22,23 +20,34 @@ jobs:
 
       # Download and cache dependencies
       - restore_cache:
+          name: Restoring Yarn Cache
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "yarn.lock" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
-
-      - run: npm install
-
+      - run:
+          name: Installing Dependencies
+          command: yarn --frozen-lockfile
       - save_cache:
+          name: Saving Yarn Cache
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-      
-      # code checks  
-      - run: npm run flow
-      - run: npm run eslint
+          key: v1-dependencies-{{ checksum "yarn.lock" }}  
+      - run:
+          name: Building
+          command: yarn build
+      - run:
+          name: Running Flow Checks
+          command: yarn flow
+      - run:
+          name: Running Eslint Checks
+          command: yarn eslint
+      - run:
+          name: Running Unit And Integration Tests
+          command: yarn all-tests
 
-      # run tests!
-      - run: npm run all-tests
-
-
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test

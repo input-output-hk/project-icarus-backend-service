@@ -18,7 +18,7 @@
     "integration-tests": "yarn transpile-tests && NODE_ENV=test yarn load-test-db && NODE_ENV=test mocha \"build-test/integration/**/*.js\"",
     "all-tests": "yarn unit-tests && yarn integration-tests",
     "coverage": "yarn all-tests",
-    "postintegration-tests": "yarn clean-test-db",
+    "postintegration-tests": "NODE_ENV=test yarn clean-test-db",
     "build-docker": "./scripts/docker/build-docker.sh",
     "launch-staging": "./scripts/docker/launch-staging.sh",
     "claudia": "flow-remove-types ./src/ -d ./build/ --all --pretty && claudia"
