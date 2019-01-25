@@ -46,7 +46,7 @@ async function start(db: any) {
       healthy = upToDate
       const message = upToDate ? 'Database is updating again.' : 'Database did not update!'
       logger.info(message)
-      rtm.sendMessage(`${process.env.name}: ${message}`, channelId)
+      rtm.sendMessage(`${process.env.name || 'backend-service'}: ${message}`, channelId)
         .then(() => {
           logger.debug('Message was sent without problems.')
         })
