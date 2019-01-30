@@ -1,17 +1,16 @@
-# Project Icarus - Backend Service
+# AdaLite Backend Service
 
 [![CircleCI](https://circleci.com/gh/vacuumlabs/adalite-backend-service.svg?style=svg)](https://circleci.com/gh/vacuumlabs/adalite-backend-service)
 
-Icarus Backend Service will allow wallet users to access blockchain data. For a detailed architecture explanation, please refer to the [wiki](https://github.com/input-output-hk/icarus-poc/wiki/Architecture).
+AdaLite Backend Service is based on Project Icarus by IOHK and used by the [AdaLite](https://github.com/vacuumlabs/adalite) wallet.
 
 # Setup
 
 ## Pre-requisites
 
 * NodeJS v8.9.4. We recommend [nvm](https://github.com/creationix/nvm) to install it
-* [Postgres](https://www.postgresql.org/) as DB engine. For development purposes we
-  suggest using Docker but local installation could be used as well (not both,
-  obviously)
+* [Postgres](https://www.postgresql.org/) as DB engine.
+* A database synchronized through [Icarus Importer](https://github.com/Emurgo/project-icarus-importer)
 
 ## Configuration
 
@@ -20,38 +19,25 @@ They are loaded using [config](https://www.npmjs.com/package/config) package.
 
 ## Development environment
 
-We recommend using [Docker](https://hub.docker.com/_/postgres/) to quickly setup the DB in dev environment:
-
-`docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword -d postgres`
-
-And then, to create the db, you need to do:
-
-```
-docker exec -it postgres psql -U postgres;
-create database icaruspocbackendservice;
-```
-
-1.  Clone this repo, `git@github.com:input-output-hk/icaraus-poc-backend-service.git`
+1.  Clone this repo, `git@github.com:vacuumlabs/adalite-backend-service.git`
 2.  Select correct NodeJs version, `nvm use`
-3.  Install dependencies, `npm install`
-4.  Start the app, `npm run dev`.
+3.  Install dependencies, `yarn install`
+4.  Transpile the source code, `yarn build`
+5.  Start the app, `yarn start`.
 
-In order to run targeting staging DB from local environment, you need to:
+In order to connect to the icarus importer DB from local environment, you need to:
 
-1.  Create a file with the necessary environment variables set. E.g.:
+1.  Create a `~/.env` file with the necessary environment variables set. E.g.:
 
 ```
-export DB_USER=dbUser
-export DB_HOST=dbHost
-export DB=dbName
-export DB_PASSWORD=password
-export DB_PORT=8080
+DB_USER=dbUser
+DB_HOST=dbHost
+DB=dbName
+DB_PASSWORD=password
+DB_PORT=8080
 ```
-
-2.  Import the environment variables in your terminal, e.g: `source ~/path/to/file` (To verify
-    the variables where exported: `echo $DB`)
-3.  Go to the repository's path
-4.  Execute the following command: `npm run dev`
+2.  Go to the repository's path
+3.  Execute the following command: `yarn start`
 
 ## Database migrations
 
@@ -59,23 +45,31 @@ export DB_PORT=8080
 
 Examples of migration commands:
 ```
-yarn run knex migrate:latest
-yarn run knex migrate:rollback
-yarn run knex migrate:make $name
+yarn knex migrate:latest
+yarn knex migrate:rollback
+yarn knex migrate:make $name
+```
+
+## Slack integration
+
+A healthcheck script is used to guarantee that the database contains the latest data. If the database stops updating, the backend service will stop responding to requests and a message will be sent to Slack. The following environment variables need to be set:
+```
+SLACK_TOKEN=slackToken
+SLACK_CHANNEL=slackChannel
 ```
 
 ## Checks & Tests
 
 ### Flow and Eslint
 
-* Flow checks: `npm run flow`
-* Eslint checks: `npm run eslint`
+* Flow checks: `yarn flow`
+* Eslint checks: `yarn eslint`
 
 ### Unit tests
 
 To run unit tests, you just need to run
 
-`npm run unit-tests`
+`yarn unit-tests`
 
 ### Integration tests
 
@@ -87,20 +81,18 @@ Integration tests will:
 4. Exercise and assert several endpoints
 
 To do so, before running them, you need to be sure a PostgreSQL db instance is accessible from localhost
-using the following config:
+using the config saved in `~/config/test.js`, which is by default:
 
 * Server: localhost
 * User: postgres
 * Password: mysecretpassword
 * Port: 5432
 
-Then, run `export NODE_ENV=test; npm run integration-tests`
+Then, run `yarn integration-tests`
 
 ### Coverage
 
-Istanbul will be used to get test coverage. It will execute both unit and integration tests. 
-
-To run it, execute `npm run coverage`
+To run both unit and integration tests, execute `yarn coverage`
 
 ## License
 
