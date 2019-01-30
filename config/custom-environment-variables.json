@@ -11,6 +11,7 @@
     "channelId": "SLACK_CHANNEL"
   },
   "server": {
-    "port": "PORT"
+    "port": "PORT",
+    "importerSendTxEndpoint": "IMPORTER_ENDPOINT"
   }
 }

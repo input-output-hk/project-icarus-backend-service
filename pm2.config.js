@@ -15,6 +15,7 @@ module.exports = {
     merge_logs: true,
     env: {
       PORT: 8080,
+      IMPORTER_ENDPOINT: 'http://localhost:8201/api/txs/signed',
       DB: 'icarus_mainnet_1',
       NODE_ENV: 'production',
     },
@@ -38,6 +39,7 @@ module.exports = {
     merge_logs: true,
     env: {
       PORT: 8081,
+      IMPORTER_ENDPOINT: 'http://localhost:8202/api/txs/signed',
       DB: 'icarus_mainnet_2',
       NODE_ENV: 'production',
     },
