@@ -34,7 +34,8 @@ DB_USER=dbUser
 DB_HOST=dbHost
 DB=dbName
 DB_PASSWORD=password
-DB_PORT=8080
+DB_PORT=5432
+IMPORTER_ENDPOINT=<link to your icarus importer API>
 ```
 2.  Go to the repository's path
 3.  Execute the following command: `yarn start`

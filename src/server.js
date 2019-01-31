@@ -45,6 +45,7 @@ async function createServer() {
     setHeaders: true,
   }))
   server.on('after', restifyBunyanLogger())
+  server.use(restify.plugins.gzipResponse())
 
   Object.values(merge(routes, legacyRoutes)).forEach(({ method, path, handler }: any) => {
     server[method](path, async (req, res, next) => {

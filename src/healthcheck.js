@@ -19,7 +19,9 @@ async function start(db: any) {
   const channelId = process.env.SLACK_CHANNEL
   process.env.DATABASE_UNHEALTHY = 'false'
   const rtm = new RTMClient(token)
-  rtm.start()
+  if (token) {
+    rtm.start()
+  }
 
   let healthy = true
   let prevBestBlock = 0
