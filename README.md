@@ -40,6 +40,21 @@ IMPORTER_ENDPOINT=<link to your icarus importer API>
 2.  Go to the repository's path
 3.  Execute the following command: `yarn start`
 
+## Production environment
+Docker-compose can be used to run postgres, Icarus importer and the backend service in an isolated environment and to run multiple instances on the same host. Information about importer installation can be found [here](https://github.com/input-output-hk/project-icarus-importer/blob/icarus-master/blockchain-importer/README.md).
+In order to start a production instance, you need to:
+
+1. Create a config based on `docker/env.example`
+2. Load the variables, e.g. `export $(cat docker/env.example | xargs)`
+3. Run `docker-compose -p $instance_name up --build -d` where `$instance_name` is your name of choice
+
+To shut the instance down:
+
+1. Load the correct environment variables
+2. Run `docker-compose -p $instance_name down`
+
+To rebuild the backend service, run `docker-compose -p $instance_name up --build -d --no-deps --force-recreate adalite-backend`
+
 ## Database migrations
 
 [Knex](https://knexjs.org/#Migrations) is used to handle the migrations. The connection settings are taken from `.env`.

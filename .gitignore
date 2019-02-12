@@ -56,6 +56,7 @@ typings/
 
 # dotenv environment variables file
 .env
+env*
 
 # folders with built js
 build

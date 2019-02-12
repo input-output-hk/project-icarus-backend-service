@@ -11,6 +11,6 @@ module.exports = {
       addressesRequestLimit: 50,
       txHistoryResponseLimit: 20,
     },
-    importerSendTxEndpoint: 'https://localhost:8200/api/txs/signed',
+    importerSendTxEndpoint: 'http://icarus-importer:8200/api/txs/signed',
   },
 }
