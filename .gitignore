@@ -62,3 +62,6 @@ flow-files
 
 # Claudia Production config file
 claudia-prod.json
+
+# nix
+result*
