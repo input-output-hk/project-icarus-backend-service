@@ -69,14 +69,17 @@ const transactionsHistoryForAddresses = (db: Pool) => async (
 // The remaining queries should be used only for the purposes of the legacy API!
 
 /**
- * Queries DB looking for successful transactions associated with the given address
+ * Queries DB looking for successful transactions associated with any of the given addresses.
  * @param {Db Object} db
- * @param {Address} address
+ * @param {Array<Address>} addresses
  */
-const addressSummary = (db: Pool) => async (address: string): Promise<ResultSet> =>
+const bulkAddressSummary = (db: Pool) => async (addresses: Array<string>): Promise<ResultSet> =>
   db.query({
-    text: 'SELECT * FROM "txs" WHERE hash = ANY (SELECT tx_hash from "tx_addresses" WHERE address = $1) AND tx_state = $2',
-    values: [address, 'Successful'],
+    text: `SELECT * FROM "txs"
+      WHERE hash = ANY (SELECT tx_hash FROM "tx_addresses" WHERE address = ANY($1))
+      AND tx_state = $2
+      ORDER BY time DESC`,
+    values: [addresses, 'Successful'],
   })
 
 /**
@@ -127,7 +130,7 @@ export default (db: Pool): DbApi => ({
   transactionsHistoryForAddresses: transactionsHistoryForAddresses(db),
   bestBlock: bestBlock(db),
   // legacy
-  addressSummary: addressSummary(db),
+  bulkAddressSummary: bulkAddressSummary(db),
   txSummary: txSummary(db),
   utxoLegacy: utxoLegacy(db),
   lastTxs: lastTxs(db),
