@@ -17,7 +17,9 @@ import healthCheck from './healthcheck'
 import responseGuard from './middleware/response-guard'
 
 const serverConfig = config.get('server')
-const { logger, importerSendTxEndpoint, disableHealthcheck } = serverConfig
+const {
+  logger, importerSendTxEndpoint, disableHealthcheck, corsEnabledFor, allowCredentials,
+} = serverConfig
 
 async function createServer() {
   const db = await createDB(config.get('db'))
@@ -32,7 +34,7 @@ async function createServer() {
     healthCheck(db)
   }
 
-  const cors = corsMiddleware({ origins: serverConfig.corsEnabledFor })
+  const cors = corsMiddleware({ origins: corsEnabledFor, credentials: allowCredentials })
   server.pre(cors.preflight)
   server.use(cors.actual)
   server.use(restify.plugins.bodyParser())

@@ -7,5 +7,6 @@ module.exports = {
       txHistoryResponseLimit: 20,
     },
     disableHealthcheck: false,
+    allowCredentials: false,
   },
 }
