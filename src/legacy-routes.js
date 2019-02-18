@@ -13,9 +13,22 @@ const invalidTx = 'Invalid transaction id!'
 
 const arraySum = (numbers) => numbers.reduce((acc, val) => acc.plus(Big(val)), Big(0))
 
-const txAddressCoins = (addresses, amounts, address) => arraySum(zip(addresses, amounts)
-  .filter((pair) => pair[0] === address)
+/**
+ * Helper function that takes movements for various addresses and a set of addresses we are
+ * interested in. The sum of movements for addresses we are interested in is returned.
+*/
+const txAddressCoins = (addresses, amounts, addressSet) => arraySum(zip(addresses, amounts)
+  .filter((pair) => addressSet.has(pair[0]))
   .map((pair) => nth(pair, 1)))
+
+const combinedBalance = (transactions, addresses) => {
+  const addressSet = new Set(addresses)
+  const totalIn = transactions.reduce((acc, tx) =>
+    acc.plus(txAddressCoins(tx.outputs_address, tx.outputs_amount, addressSet)), Big(0))
+  const totalOut = transactions.reduce((acc, tx) =>
+    acc.plus(txAddressCoins(tx.inputs_address, tx.inputs_amount, addressSet)), Big(0))
+  return totalIn.sub(totalOut)
+}
 
 const txToAddressInfo = (row) => ({
   ctbId: row.hash,
@@ -45,17 +58,13 @@ const addressSummary = (dbApi: any, { logger }: ServerConfig) => async (req: any
   }
   const result = await dbApi.bulkAddressSummary([address])
   const transactions = result.rows
-  const totalAddressIn = transactions.reduce((acc, tx) =>
-    acc.plus(txAddressCoins(tx.outputs_address, tx.outputs_amount, address)), Big(0))
-  const totalAddressOut = transactions.reduce((acc, tx) =>
-    acc.plus(txAddressCoins(tx.inputs_address, tx.inputs_amount, address)), Big(0))
 
   const right = {
     caAddress: address,
     caType: 'CPubKeyAddress',
     caTxNum: transactions.length,
     caBalance: {
-      getCoin: `${totalAddressIn.sub(totalAddressOut)}`,
+      getCoin: `${combinedBalance(transactions, [address])}`,
     },
     caTxList: transactions.map(txToAddressInfo),
   }
@@ -186,10 +195,15 @@ const bulkAddressSummary = (dbApi: any, { logger, apiConfig }: ServerConfig) => 
     return { Left: invalidAddress }
   }
   const txList = await dbApi.bulkAddressSummary(addresses)
+  const transactions = txList.rows
+
   const right = {
     caAddresses: addresses,
-    caTxNum: txList.rows.length,
-    caTxList: txList.rows.map(txToAddressInfo),
+    caTxNum: transactions.length,
+    caBalance: {
+      getCoin: `${combinedBalance(transactions, addresses)}`,
+    },
+    caTxList: transactions.map(txToAddressInfo),
   }
   logger.debug('[bulkAddressSummary] result calculated')
   return { Right: right }
