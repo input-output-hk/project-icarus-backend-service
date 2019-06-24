@@ -44,16 +44,10 @@ IMPORTER_ENDPOINT=<link to your icarus importer API>
 Docker-compose can be used to run postgres, Icarus importer and the backend service in an isolated environment and to run multiple instances on the same host. Information about importer installation can be found [here](https://github.com/input-output-hk/project-icarus-importer/blob/icarus-master/blockchain-importer/README.md).
 In order to start a production instance, you need to:
 
-1. Create a config based on `docker/env.example`
-2. Load the variables, e.g. `export $(cat docker/env.example | xargs)`
-3. Run `docker-compose -p $instance_name up --build -d` where `$instance_name` is your name of choice
+1. Create a config based on `docker/env.example`, choose an instance name and name it `docker/.env.<instance_name>`
+2. Run the interactive script `./manage_containers.sh <instance_name> <action>` from within the `docker` folder. Available actions are `start-normal` - rebuilds and starts the instance in normal mode, `start-recovery` - rebuilds and starts the instance in recovery mode, `stop` stops the instance
 
-To shut the instance down:
-
-1. Load the correct environment variables
-2. Run `docker-compose -p $instance_name down`
-
-To rebuild the backend service, run `docker-compose -p $instance_name up --build -d --no-deps --force-recreate adalite-backend`
+If you are running the instance for the first time on Ubuntu, you may run into file permission problems, since the volumes will probably be owned by root. To fix this, cd into the instance persistent storage folder (`$DATA_PATH` environment variable) and run `sudo chown -R 999:999 .` and restart the containers.
 
 ## Database migrations
 

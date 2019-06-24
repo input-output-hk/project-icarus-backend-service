@@ -12,6 +12,7 @@
   },
   "server": {
     "port": "PORT",
-    "importerSendTxEndpoint": "IMPORTER_ENDPOINT"
+    "importerSendTxEndpoint": "IMPORTER_ENDPOINT",
+    "corsEnabledFor": "CORS_ENABLED_FOR"
   }
 }

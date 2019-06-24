@@ -40,9 +40,12 @@ async function createServer() {
     healthCheck(db)
   }
 
-  const cors = corsMiddleware({ origins: corsEnabledFor, credentials: allowCredentials })
-  server.pre(cors.preflight)
-  server.use(cors.actual)
+  const allowedOrigins = corsEnabledFor !== '' ? corsEnabledFor.split(',').map(x => x.trim()) : []
+  if (allowedOrigins.length > 0) {
+    const cors = corsMiddleware({ origins: corsEnabledFor.split(',').map(x => x.trim()), credentials: allowCredentials })
+    server.pre(cors.preflight)
+    server.use(cors.actual)
+  }
   server.use(restify.plugins.bodyParser())
   server.use(responseGuard)
   server.use(restify.plugins.throttle({

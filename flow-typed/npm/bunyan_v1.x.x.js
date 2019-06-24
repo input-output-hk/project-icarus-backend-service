@@ -1,7 +1,7 @@
 // flow-typed signature: b3827b7e37fa457f58d7a6656d830369
 // flow-typed version: da30fe6876/bunyan_v1.x.x/flow_>=v0.25.x
 
-declare module "bunyan" {
+declare module 'bunyan' {
   declare var TRACE: 10;
   declare var DEBUG: 20;
   declare var INFO: 30;

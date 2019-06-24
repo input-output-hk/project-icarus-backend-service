@@ -3,7 +3,7 @@ const { consoleLogger } = require('../src/logger')
 
 module.exports = {
   server: {
-    corsEnabledFor: ['*'],
+    corsEnabledFor: '*',
     logger: raw(consoleLogger('fatal')),
     importerSendTxEndpoint: 'https://localhost:8200/api/txs/signed',
     disableHealthcheck: true,
