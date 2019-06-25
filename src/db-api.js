@@ -117,9 +117,9 @@ const lastTxs = (db: Pool) => async (): Promise<ResultSet> =>
       LIMIT 20`,
   })
 
-const bestBlock = (db: Pool) => async (): Promise<any> => {
+const bestBlock = (db: Pool) => async (): Promise<number> => {
   const query = await db.query('SELECT * FROM "bestblock"')
-  return query.rows[0].best_block_num
+  return query.rows.length > 0 ? parseInt(query.rows[0].best_block_num, 10) : 0
 }
 
 export default (db: Pool): DbApi => ({

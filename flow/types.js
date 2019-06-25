@@ -49,7 +49,7 @@ declare module 'icarus-backend' {
       dateFrom: Date,
       txHash: ?string,
     ) => Promise<ResultSet>,
-    bestBlock: () => Promise<any>,
+    bestBlock: () => Promise<number>,
   };
 
   declare type ImporterApi = {

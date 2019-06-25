@@ -23,11 +23,12 @@ const {
 
 async function createServer() {
   const db = await createDB(config.get('db'))
+
   logger.info('Connected to db')
 
   const server = restify.createServer({
     log: logger,
-    maxParamLength: 1000, // default is 100 (too short for Daedalus addresses)
+    maxParamLength: 1000, // default is 100 which is too short for Daedalus addresses
   })
 
   if (!disableHealthcheck) {

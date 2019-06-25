@@ -172,6 +172,17 @@ const signedTransaction = (
 }
 
 /**
+ * This endpoint returns the last block stored in the database.
+ * @param {*} db Database
+ * @param {*} Server Config Object
+ */
+const bestBlock = (dbApi: DbApi) => async () => {
+  const result = await dbApi.bestBlock()
+  return { Right: { bestBlock: result } }
+}
+
+
+/**
  * This endpoint returns the current deployed version. The goal of this endpoint is to
  * be used by monitoring tools to check service availability.
  * @param {*} req
@@ -185,6 +196,11 @@ export default {
     method: 'get',
     path: withPrefix('/healthcheck'),
     handler: healthCheck,
+  },
+  bestBlock: {
+    method: 'get',
+    path: withPrefix('/bestBlock'),
+    handler: bestBlock,
   },
   filterUsedAddresses: {
     method: 'post',
