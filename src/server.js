@@ -22,8 +22,13 @@ const {
 } = serverConfig
 
 async function createServer() {
-  const db = await createDB(config.get('db'))
-
+  let db
+  try {
+    db = await createDB(config.get('db'))
+  } catch (err) {
+    logger.error(`Failed to connect to db: ${err}`)
+    throw err
+  }
   logger.info('Connected to db')
 
   const server = restify.createServer({
