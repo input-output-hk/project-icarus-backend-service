@@ -21,6 +21,7 @@ services:
     depends_on:
       - adalite-backend
     container_name: icarus-importer-${SUFIX}
+    # add --recovery-mode falg to run importer in recovery mode
     command: wait-for-it.sh adalite-backend:8080 -t 3600 -- cardano-start -- --runtime-args "--postgres-name icarus_mainnet_1 --postgres-user ${POSTGRES_USER} --postgres-password ${POSTGRES_PASSWORD} --postgres-host postgres --postgres-port 5432 --no-tls"
   postgres:
     image: postgres
