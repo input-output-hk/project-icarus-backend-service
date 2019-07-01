@@ -11,6 +11,9 @@ services:
     container_name: adalite-backend-${SUFIX}
     environment:
       DB: icarus_mainnet_1
+      DB_HOST: postgres
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
       name: adalite-backend-${SUFIX}
   icarus-importer:
     image: cardano-container-mainnet
