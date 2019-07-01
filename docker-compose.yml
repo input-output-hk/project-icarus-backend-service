@@ -14,6 +14,8 @@ services:
       name: adalite-backend-${SUFIX}
   icarus-importer:
     image: cardano-container-mainnet
+    ports:
+      - "${ICARUS_IMPORTER_PORT}:8200"
     volumes:
       - ${DATA_PATH}/icarus_mainnet:/wallet/mainnet
     depends_on:
