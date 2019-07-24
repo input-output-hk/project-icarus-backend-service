@@ -50,7 +50,7 @@ async function healthcheck(db: any) {
     // compare block number to the expected value based on historical data
     const currentTime = Math.floor((new Date().getTime()) / 1000)
     const expectedBlock = 2761803 + Math.floor((currentTime - 1561469711) / 20)
-    const isDbSynced = (expectedBlock - currentBestBlock <= 3)
+    const isDbSynced = (expectedBlock - currentBestBlock <= 7)
 
     // eslint-disable-next-line no-await-in-loop
     const canSubmitTx = await txTest()
@@ -72,7 +72,7 @@ async function healthcheck(db: any) {
         })
     }
 
-    await delay(70000) // eslint-disable-line
+    await delay(30000) // eslint-disable-line
   }
 }
 
