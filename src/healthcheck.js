@@ -38,14 +38,15 @@ async function healthcheck(db: any) {
 
   global.instanceUnhealthyFrom = null
 
+  const token = process.env.SLACK_TOKEN
+  const channelId = process.env.SLACK_CHANNEL
+  const rtm = new RTMClient(token)
+  if (token) {
+    // eslint-disable-next-line no-await-in-loop
+    await rtm.start()
+  }
+
   while (true) { // eslint-disable-line
-    const token = process.env.SLACK_TOKEN
-    const channelId = process.env.SLACK_CHANNEL
-    const rtm = new RTMClient(token)
-    if (token) {
-      // eslint-disable-next-line no-await-in-loop
-      await rtm.start()
-    }
 
     const currentBestBlock = await fetchBestBlock(db) // eslint-disable-line
     // compare block number to the expected value based on historical data
@@ -74,7 +75,7 @@ async function healthcheck(db: any) {
       }
     }
 
-    await delay(70000) // eslint-disable-line
+    await delay(30000) // eslint-disable-line
   }
 }
 
