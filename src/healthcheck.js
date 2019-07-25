@@ -43,7 +43,8 @@ async function healthcheck(db: any) {
     const channelId = process.env.SLACK_CHANNEL
     const rtm = new RTMClient(token)
     if (token) {
-      rtm.start()
+      // eslint-disable-next-line no-await-in-loop
+      await rtm.start()
     }
 
     const currentBestBlock = await fetchBestBlock(db) // eslint-disable-line
@@ -63,16 +64,17 @@ async function healthcheck(db: any) {
 
       const message = isInstanceHealthy ? 'Database is updating again.' : 'Database did not update!'
       logger.info(message)
-      rtm.sendMessage(`${process.env.name || 'backend-service'}: ${message}`, channelId)
-        .then(() => {
-          logger.debug('Message was sent without problems.')
-        })
-        .catch((e) => {
-          logger.error(`Error sending slack message: ${e}`)
-        })
+
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await rtm.sendMessage(`${process.env.name || 'backend-service'}: ${message}`, channelId)
+        logger.debug('Message was sent without problems.')
+      } catch (e) {
+        logger.error(`Error sending slack message: ${e}`)
+      }
     }
 
-    await delay(30000) // eslint-disable-line
+    await delay(70000) // eslint-disable-line
   }
 }
 
