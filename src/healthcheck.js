@@ -42,17 +42,24 @@ async function healthcheck(db: any) {
   const channelId = process.env.SLACK_CHANNEL
   const rtm = new RTMClient(token)
   if (token) {
-    // eslint-disable-next-line no-await-in-loop
-    await rtm.start()
+    rtm.start()
   }
 
   while (true) { // eslint-disable-line
-
     const currentBestBlock = await fetchBestBlock(db) // eslint-disable-line
-    // compare block number to the expected value based on historical data
-    const currentTime = Math.floor((new Date().getTime()) / 1000)
-    const expectedBlock = 2761803 + Math.floor((currentTime - 1561469711) / 20)
-    const isDbSynced = (expectedBlock - currentBestBlock <= 7)
+
+    const expectedBlock = await axios.get('https://cardanoexplorer.com/api/blocks/pages') // eslint-disable-line
+      .then(response => {
+        const pages = response.data.Right[0]
+        const items = response.data.Right[1].length
+        return ((pages - 1) * 10) + items
+      })
+      .catch(error => {
+        logger.debug(error)
+        return 0
+      })
+
+    const isDbSynced = (expectedBlock - currentBestBlock <= 5)
 
     // eslint-disable-next-line no-await-in-loop
     const canSubmitTx = await txTest()
@@ -65,17 +72,16 @@ async function healthcheck(db: any) {
 
       const message = isInstanceHealthy ? 'Database is updating again.' : 'Database did not update!'
       logger.info(message)
-
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        await rtm.sendMessage(`${process.env.name || 'backend-service'}: ${message}`, channelId)
-        logger.debug('Message was sent without problems.')
-      } catch (e) {
-        logger.error(`Error sending slack message: ${e}`)
-      }
+      rtm.sendMessage(`${process.env.name || 'backend-service'}: ${message}`, channelId)
+        .then(() => {
+          logger.debug('Message was sent without problems.')
+        })
+        .catch((e) => {
+          logger.error(`Error sending slack message: ${e}`)
+        })
     }
 
-    await delay(30000) // eslint-disable-line
+    await delay(70000) // eslint-disable-line
   }
 }
 
